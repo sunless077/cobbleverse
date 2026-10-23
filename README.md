@@ -10,7 +10,7 @@ Node.js + WebSocket server. Nobody needs an account: players open the link and e
 ## Roles
 - Players: open `/`, enter a trainer name (10 players).
 - Host: open `/`, expand "Host login" at the bottom right, paste HOST_KEY.
-- Pool creator: open `/#creator`, paste CREATOR_KEY, fill in 30 Pokémon + images, Submit & lock.
+- Pool creator: open `/#creator`, paste CREATOR_KEY, type the 30 Pokémon names, click a picture for each (found automatically via PokéAPI; uploading your own is also possible), then Submit & lock.
 
 ## Deploy on Render (free)
 1. Push this folder to a GitHub repo.
@@ -21,3 +21,8 @@ Node.js + WebSocket server. Nobody needs an account: players open the link and e
 Free instances sleep after ~15 min idle (first load takes ~30 s) and have no persistent disk,
 so a restart wipes the draft. Wake it up before you start and don’t let it sit idle mid-draft.
 A paid instance with a disk (set DATA_FILE=/data/data.json) avoids this.
+
+## Test run (host)
+In the lobby, the host console has "Start a test run". It uses dummy Pokémon (the real secret pool is never touched),
+lets you fill the room with dummy trainers, and can make them bid on their own or bid for them by hand.
+"Exit test run" removes the dummies and returns to a clean lobby.
