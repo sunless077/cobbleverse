@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Cobbleverse Mystery Auction</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Inter:wght@400;600&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eef0f6;--bg2:#e2e5f0;--card:rgba(255,255,255,.8);--ink:#14162a;--mut:#5d6180;--line:rgba(20,22,42,.12);--st:#7c4dff;--gold:#c98a00;--ok:#13a05a;--bad:#e0334f;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0b16;--bg2:#141630;--card:rgba(24,26,52,.72);--ink:#eef0ff;--mut:#9ba0c9;--line:rgba(160,170,255,.16);--gold:#ffc83d;--ok:#3ddc97;--bad:#ff5d7a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0b16;--bg2:#141630;--card:rgba(24,26,52,.72);--ink:#eef0ff;--mut:#9ba0c9;--line:rgba(160,170,255,.16);--gold:#ffc83d;--ok:#3ddc97;--bad:#ff5d7a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;min-height:100vh;color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif;background:radial-gradient(900px 500px at 15% -10%,color-mix(in srgb,var(--st) 35%,transparent),transparent),radial-gradient(700px 500px at 100% 0,rgba(0,200,255,.14),transparent),var(--bg);transition:background .6s}
+body.s1{--st:#ffb020}body.s2{--st:#ff3d9a}body.s3{--st:#ff4b3a}body.lobby{--st:#7c4dff}
+.hd{font-family:"Chakra Petch",Inter,sans-serif}
+main{max-width:1120px;margin:0 auto;padding:14px;display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:900px){main{grid-template-columns:1.6fr 1fr}.wide{grid-column:1/-1}}
+.card{background:var(--card);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:18px;padding:16px}
+h1{margin:0;font-size:1.5rem;letter-spacing:.04em}
+h2{font-size:.72rem;margin:0 0 10px;text-transform:uppercase;letter-spacing:.14em;color:var(--mut)}
+.mut{color:var(--mut)}.ok{color:var(--ok)}.bad{color:var(--bad)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pips{display:flex;gap:6px}
+.pip{padding:5px 12px;border-radius:999px;border:1px solid var(--line);font-size:.78rem;font-weight:600;color:var(--mut)}
+.pip.on{color:#111;background:var(--st);border-color:var(--st);box-shadow:0 0 18px color-mix(in srgb,var(--st) 60%,transparent)}
+.pip.done{color:var(--ok)}
+.arena{min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;border-color:color-mix(in srgb,var(--st) 55%,var(--line));box-shadow:0 0 50px color-mix(in srgb,var(--st) 22%,transparent) inset}
+.q{width:190px;height:190px;border-radius:50%;display:grid;place-items:center;font:700 5.5rem "Chakra Petch",sans-serif;color:var(--st);background:conic-gradient(from 0deg,var(--st),transparent 40%,var(--st));padding:5px;animation:spin 6s linear infinite}
+.q span{width:100%;height:100%;border-radius:50%;background:var(--bg2);display:grid;place-items:center;animation:spin 6s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{0%{transform:scale(.3) rotate(-14deg);opacity:0}60%{transform:scale(1.08) rotate(2deg);opacity:1}100%{transform:none}}
+.mon{width:200px;height:200px;border-radius:24px;object-fit:contain;background:radial-gradient(circle,color-mix(in srgb,var(--st) 35%,transparent),transparent 70%);animation:pop .7s cubic-bezier(.2,.9,.3,1.2)}
+.ph{display:grid;place-items:center;font:700 4rem "Chakra Petch",sans-serif;color:var(--st);border:2px dashed var(--st)}
+.name{font:700 2.2rem "Chakra Petch",sans-serif;letter-spacing:.05em;text-transform:uppercase}
+.bid{font:700 3.4rem/1 "Chakra Petch",sans-serif;color:var(--gold);text-shadow:0 0 24px color-mix(in srgb,var(--gold) 50%,transparent)}
+.ring{position:relative;width:96px;height:96px}
+.ring svg{transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:700 1.7rem "Chakra Petch",sans-serif}
+.ring.low b{color:var(--bad)}
+.bb{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--gold);color:#111;font-weight:700;font-size:.72rem;letter-spacing:.08em}
+button{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 16px;border-radius:12px;cursor:pointer;transition:transform .1s}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button.p{background:var(--st);color:#111;border-color:var(--st);box-shadow:0 4px 20px color-mix(in srgb,var(--st) 45%,transparent)}
+button:disabled{opacity:.4;cursor:not-allowed}
+input,select{font:inherit;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--ink);min-width:0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:8px}
+.tr{display:grid;grid-template-columns:1fr auto;gap:6px 10px;padding:10px 0;border-top:1px solid var(--line)}
+.tr:first-of-type{border-top:0}
+.me{color:var(--st);font-weight:700}
+.sl{display:flex;gap:5px}
+.sl i{width:34px;height:34px;border-radius:9px;border:1px dashed var(--line);display:grid;place-items:center;font:700 .7rem "Chakra Petch",sans-serif;color:var(--mut);font-style:normal;overflow:hidden}
+.sl i.on{border:1px solid var(--st)}
+.sl img{width:100%;height:100%;object-fit:contain}
+.log{max-height:260px;overflow:auto}
+.lr{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
+.lr img,.lr .th{width:36px;height:36px;object-fit:contain;border-radius:8px;flex:none}
+.f{display:flex;flex-direction:column;gap:3px;text-align:left}.f label{font-size:.78rem;color:var(--mut)}
+.chk{text-align:left;font-size:.92rem}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+#toast.on{opacity:1}
+.cg{display:grid;gap:8px}
+.cs{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center}
+.cs img,.cs .th{width:46px;height:46px;object-fit:contain;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;color:var(--mut);font-size:.7rem}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head>
+<body class="lobby"><main id="app"><div class="card wide">Connecting…</div></main><div id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const STG=['','Legendary','Mega','Uber'],ST3=['','L','M','U'];
+const view=location.hash==='#creator'?'creator':'main';
+let S=null,ws,off=0,resetArmed=false,wipeArmed=false;
+let token=localStorage.getItem('tk');if(!token){token=crypto.randomUUID()+crypto.randomUUID();localStorage.setItem('tk',token)}
+const now=()=>Date.now()+off;
+const toast=t=>{const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2800)};
+const send=o=>ws&&ws.readyState===1&&ws.send(JSON.stringify(o));
+const H=(act,x)=>send({t:'host',act,...x});
+function connect(){
+  ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws');
+  ws.onopen=()=>{send({t:'hello',token});const k=localStorage.getItem('hostKey');if(k)send({t:'auth',key:k})};
+  ws.onmessage=e=>{const m=JSON.parse(e.data);
+    if(m.t==='state'){S=m.s;off=S.now-Date.now();render()}
+    else if(m.t==='err')toast(m.m);
+    else if(m.t==='authfail'){localStorage.removeItem('hostKey');toast('Wrong host key.')}};
+  ws.onclose=()=>setTimeout(connect,1500);
+}
+const nm=id=>{const p=S.players.find(p=>p.id===id);return p?esc(p.name):'—'};
+function pic(id,name,cls){return id?'<img class="'+cls+'" src="/img/'+id+'" alt="">':'<div class="'+cls+' ph">'+esc((name||'?')[0])+'</div>'}
+const won=(id,st)=>S.results.find(r=>r.stage===st&&r.winner===id);
+
+function render(){if(view==='creator')return creatorStatus();renderMain()}
+function renderMain(){
+  const r=S.room,a=S.auction,y=S.you,live=r.status==='live',done=r.status==='done';
+  document.body.className=r.status==='lobby'?'lobby':'s'+r.stage;
+  const pips=[1,2,3].map(s=>{const d=done||(live&&r.stage>s);return'<span class="pip '+(live&&r.stage===s?'on':'')+(d?' done':'')+'">'+(d?'✓ ':'')+STG[s]+'</span>'}).join('');
+  const bbTxt=r.bb?'<div class="mut">Big Blind: <span class="bb">BB</span> <b>'+nm(r.bb)+'</b></div>':'';
+  let arena='';
+  if(r.status==='lobby'){
+    const n=S.players.length;
+    arena='<div class="q"><span>?</span></div><div class="name">Mystery Auction</div><div class="mut">3 stages · 1,000 coins · one Pokémon per stage</div>'+
+     '<div class="chk"><div>'+(n===10?'✅':'⬜')+' Trainers joined: <b>'+n+'/10</b></div><div>'+(S.locked?'✅':'⬜')+' Pokémon list locked in</div></div>'+
+     (y.joined?'<div class="mut">You’re in as <b>'+nm(y.id)+'</b>.</div>':n>=10?'<div class="bad">Room is full.</div>':'<div class="row"><input id="jn" maxlength="20" placeholder="Trainer name"><button class="p" id="jb">Join</button></div>');
+  }else if(done){
+    arena='<div class="name">Draft complete 🏆</div><div class="mut">Check every trainer’s team on the right.</div>';
+  }else if(!a||(a.state==='sold'&&a.stage!==r.stage)){
+    arena='<div class="mut">STAGE '+r.stage+' · '+STG[r.stage].toUpperCase()+'</div><div class="q"><span>?</span></div><div class="name">Next reveal…</div><div class="mut">Waiting for the host.</div>'+bbTxt;
+  }else if(a.state==='live'){
+    const h=S.high,me=y.joined,w=won(y.id,a.stage),min=h?h.amount+1:1,mx=me?S.bal[y.id]-(3-r.stage):0;
+    arena='<div class="mut">'+STG[a.stage].toUpperCase()+' · LIVE</div>'+pic(a.img,a.name,'mon')+'<div class="name">'+esc(a.name)+'</div>'+
+      '<div class="row" style="gap:24px"><div><div class="mut">'+(h?(h.blind?'Big Blind opening':'Highest bid'):'No bids yet')+'</div><div class="bid">'+(h?h.amount:0)+'</div><div class="mut">'+(h?'<b>'+nm(h.bidder)+'</b>':'&nbsp;')+'</div></div>'+
+      '<div class="ring" id="rg"><svg width="96" height="96"><circle cx="48" cy="48" r="42" fill="none" stroke="var(--line)" stroke-width="7"/><circle id="rc" cx="48" cy="48" r="42" fill="none" stroke="var(--st)" stroke-width="7" stroke-linecap="round" stroke-dasharray="264"/></svg><b id="tm"></b></div></div>'+bbTxt+
+      (me&&!w?'<div class="mut">Your coins: <b>'+S.bal[y.id]+'</b> · max bid <b>'+mx+'</b></div><div class="row"><button class="p" data-b="'+min+'">Bid '+min+'</button><button data-b="'+(h?h.amount+50:50)+'">'+(h?'+50 → '+(h.amount+50):'Bid 50')+'</button><input id="cb" type="number" inputmode="numeric" placeholder="Custom" style="width:110px"><button id="cbb">Bid</button></div>':
+       me?'<div class="ok">You already own your '+STG[a.stage]+'.</div>':'<div class="mut">You’re spectating.</div>');
+  }else{
+    arena='<div class="mut">SOLD</div>'+pic(a.img,a.name,'mon')+'<div class="name">'+esc(a.name)+'</div><div class="bid">'+a.price+'</div><div>to <b>'+nm(a.winner)+'</b>'+(a.byBlind?' <span class="bb">BIG BLIND</span>':'')+'</div>'+bbTxt;
+  }
+  const keep=document.activeElement&&document.activeElement.id==='cb'?document.activeElement.value:null;
+  const trainers=S.players.map(p=>{
+    const slots=[1,2,3].map(s=>{const x=won(p.id,s);return'<i class="'+(x?'on':'')+'" title="'+(x?esc(x.name)+' · '+x.price:STG[s])+'">'+(x&&x.img?'<img src="/img/'+x.img+'" alt="">':x?esc(x.name[0]):ST3[s])+'</i>'}).join('');
+    return'<div class="tr"><div><span class="'+(p.id===y.id?'me':'')+'">'+esc(p.name)+(p.id===y.id?' (you)':'')+'</span> '+(r.bb===p.id&&live?'<span class="bb">BB</span>':'')+
+     (y.isHost&&r.status==='lobby'?' <a href="#" data-k="'+p.id+'" class="mut">remove</a>':'')+'<div class="sl">'+slots+'</div></div><div style="text-align:right"><b class="hd" style="font-size:1.3rem">'+S.bal[p.id]+'</b><div class="mut">coins</div></div></div>'}).join('')||'<span class="mut">Nobody yet.</span>';
+  const hist=S.results.slice().sort((x,y)=>y.seq-x.seq).slice(0,25).map(x=>'<div class="lr">'+pic(x.img,x.name,'th')+'<div style="flex:1"><b>'+esc(x.name)+'</b> <span class="mut">'+STG[x.stage]+'</span><br><span class="mut">'+nm(x.winner)+(x.byBlind?' · Big Blind':'')+'</span></div><b class="hd">'+x.price+'</b></div>').join('')||'<span class="mut">No sales yet.</span>';
+  const open=document.querySelector('details#hl')&&document.querySelector('details#hl').open;
+  const focusHost=$('hostp')&&$('hostp').contains(document.activeElement)&&/INPUT|SELECT/.test(document.activeElement.tagName);
+  const hostHtml=focusHost?$('hostp').innerHTML:hostPanel();
+  $('app').innerHTML='<div class="wide top"><h1 class="hd">⚡ COBBLEVERSE MYSTERY AUCTION</h1><div class="pips">'+pips+'</div></div>'+
+    '<section class="card arena">'+arena+'</section><section class="card"><h2>Trainers</h2>'+trainers+'</section>'+
+    '<section class="card"><h2>Auction history</h2><div class="log">'+hist+'</div></section><section class="card" id="hostp">'+hostHtml+'</section>';
+  if(open)document.querySelector('details#hl').open=true;
+  const jb=$('jb');if(jb)jb.onclick=()=>send({t:'join',name:$('jn').value});
+  document.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>send({t:'bid',amount:+b.dataset.b}));
+  document.querySelectorAll('[data-k]').forEach(b=>b.onclick=e=>{e.preventDefault();H('kick',{id:b.dataset.k})});
+  const cb=$('cb');if(cb){if(keep!==null){cb.value=keep;cb.focus()}const go=()=>send({t:'bid',amount:parseInt(cb.value,10)});$('cbb').onclick=go;cb.onkeydown=e=>{if(e.key==='Enter')go()}}
+  wireHost();tick();
+}
+function hostPanel(){
+  const y=S.you,r=S.room,a=S.auction;
+  if(!y.isHost)return'<h2>Host</h2><details id="hl"><summary class="mut">Host login</summary><div class="row" style="justify-content:flex-start"><input id="hk" type="password" placeholder="Host key"><button id="hkb">Log in</button></div></details>';
+  const sold=!a||a.state==='sold',ex=S.eligible.length;
+  let h='<h2>Host console</h2><div class="cg">';
+  if(r.status==='lobby'){
+    h+='<div class="f"><label>Auction timer (seconds)</label><select id="ht">'+[20,30,45,60].map(t=>'<option'+(r.timer===t?' selected':'')+'>'+t+'</option>').join('')+'</select></div>'+
+      '<div class="f"><label>Big Blind rule</label><select id="hm"><option value="A"'+(r.mode==='A'?' selected':'')+'>A · buys for 1 only if nobody bids</option><option value="B"'+(r.mode==='B'?' selected':'')+'>B · poker-style, opens at 1</option></select></div>'+
+      '<button class="p" id="hgo"'+(S.players.length===10&&S.locked?'':' disabled')+'>Start Stage 1</button>';
+  }else if(r.status==='live'){
+    if(sold&&ex>0)h+='<button class="p" id="hr">Reveal next Pokémon</button>';
+    if(sold&&ex===0&&r.stage<3)h+='<button class="p" id="hadv">Advance to '+STG[r.stage+1]+' stage</button>';
+    if(sold&&ex===0&&r.stage===3)h+='<button class="p" id="hfin">Finish draft</button>';
+    if(a&&a.state==='live')h+='<button class="p" id="hs"'+(now()>=a.endsAt?'':' disabled')+'>Settle auction</button><div class="mut">Enabled when the timer reaches zero.</div>';
+  }
+  h+='<label class="mut"><input type="checkbox" id="ha"'+(r.auto?' checked':'')+'> Auto-settle when the timer ends</label>';
+  h+='<div class="row" style="justify-content:flex-start"><button id="hrs">'+(resetArmed?'Click again to wipe the draft':'Reset draft')+'</button>'+
+     (r.status==='lobby'&&S.locked?'<button id="hwp">'+(wipeArmed?'Click again to delete the pool':'Delete pool list')+'</button>':'')+'</div></div>';
+  return h;
+}
+function wireHost(){
+  const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};
+  on('hkb',()=>{localStorage.setItem('hostKey',$('hk').value.trim());send({t:'auth',key:$('hk').value.trim()})});
+  if($('ht')){$('ht').onchange=e=>H('config',{timer:+e.target.value});$('hm').onchange=e=>H('config',{mode:e.target.value})}
+  if($('ha'))$('ha').onchange=e=>H('config',{auto:e.target.checked});
+  on('hgo',()=>H('start'));on('hr',()=>H('reveal'));on('hadv',()=>H('advance'));on('hfin',()=>H('finish'));on('hs',()=>H('settle'));
+  on('hrs',()=>{if(!resetArmed){resetArmed=true;render();setTimeout(()=>{resetArmed=false;render()},4000);return}resetArmed=false;H('reset')});
+  on('hwp',()=>{if(!wipeArmed){wipeArmed=true;render();setTimeout(()=>{wipeArmed=false;render()},4000);return}wipeArmed=false;H('wipepool')});
+}
+function tick(){
+  if(view!=='main'||!S||!S.auction||S.auction.state!=='live')return;
+  const ms=S.auction.endsAt-now(),s=Math.max(0,Math.ceil(ms/1000)),t=$('tm'),c=$('rc');
+  if(t){t.textContent=s;$('rg').classList.toggle('low',s<=10)}
+  if(c)c.style.strokeDashoffset=264*(1-Math.min(1,Math.max(0,ms/1000/Math.max(S.room.timer,10))));
+  const b=$('hs');if(b)b.disabled=ms>0;
+}
+setInterval(tick,300);
+
+/* ---------- creator ---------- */
+const C={slots:JSON.parse(localStorage.getItem('draft')||'{}'),built:false};
+const cnt=()=>Object.values(C.slots).filter(s=>s&&s.name&&s.name.trim()).length;
+async function shrink(f){const bm=await createImageBitmap(f),k=Math.min(1,300/Math.max(bm.width,bm.height)),c=document.createElement('canvas');
+  c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);c.getContext('2d').drawImage(bm,0,0,c.width,c.height);return c.toDataURL('image/webp',.82)}
+const draft=()=>{try{localStorage.setItem('draft',JSON.stringify(C.slots))}catch(e){toast('Draft too large to keep locally.')}};
+function thumb(k){const el=$('p'+k),s=C.slots[k];if(!el)return;el.innerHTML=s&&s.image?'<img src="'+s.image+'" alt="" style="width:46px;height:46px;object-fit:contain;border-radius:10px;border:1px solid var(--line)">':'<span style="display:inline-block;width:46px;height:46px;border:1px dashed var(--line);border-radius:10px"></span>'}
+function buildCreator(){
+  C.built=true;
+  let h='<div class="wide top"><h1 class="hd">🎴 POOL KEEPER</h1><div class="mut" id="cst"></div></div><section class="card wide"><div class="row" style="justify-content:flex-start"><div class="f"><label>Creator key</label><input id="ck" type="password" placeholder="Creator key"></div></div>'+
+   '<p class="mut">Enter 10 Pokémon per stage and pick a picture for each. The server keeps the list secret and only shows each Pokémon when it’s revealed. You can close this page after submitting.</p></section>';
+  for(let s=1;s<=3;s++){h+='<section class="card"><h2>Stage '+s+' · '+STG[s]+'</h2><div class="cg">';
+    for(let i=0;i<10;i++){const k='s'+s+'_'+i;h+='<div class="cs"><span class="mut">'+(i+1)+'</span><input data-n="'+k+'" maxlength="30" placeholder="Pokémon name"><span style="display:flex;gap:6px;align-items:center"><span id="p'+k+'"></span><button data-i="'+k+'">Image</button><input type="file" accept="image/*" data-f="'+k+'" hidden></span></div>'}
+    h+='</div></section>'}
+  h+='<section class="card wide"><div class="row"><button class="p" id="lk">Submit &amp; lock list</button></div></section>';
+  $('app').innerHTML=h;$('ck').value=localStorage.getItem('creatorKey')||'';
+  for(const k in C.slots){const n=document.querySelector('[data-n="'+k+'"]');if(n)n.value=C.slots[k].name||'';thumb(k)}
+  const slot=(k,p)=>{C.slots[k]=Object.assign({stage:+k[1],name:'',image:''},C.slots[k],p);draft();thumb(k);creatorStatus()};
+  document.querySelectorAll('[data-n]').forEach(e=>e.oninput=()=>slot(e.dataset.n,{name:e.value.trim()}));
+  document.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>document.querySelector('[data-f="'+b.dataset.i+'"]').click());
+  document.querySelectorAll('[data-f]').forEach(f=>f.onchange=async()=>{const file=f.files[0];if(!file)return;try{slot(f.dataset.f,{image:await shrink(file)})}catch(e){toast('Couldn’t read that image.')}});
+  $('lk').onclick=async()=>{
+    if(cnt()<30)return toast('Fill in all 30 names first ('+cnt()+'/30).');
+    const miss=Object.values(C.slots).filter(s=>!s.image).length;
+    if(miss&&!$('lk').dataset.ok){$('lk').dataset.ok=1;$('lk').textContent=miss+' have no image. Click again to lock anyway';return}
+    const key=$('ck').value.trim();localStorage.setItem('creatorKey',key);
+    const items=Object.values(C.slots).map(s=>({stage:s.stage,name:s.name,image:s.image||''}));
+    const res=await fetch('/api/pool',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,items})});
+    const j=await res.json().catch(()=>({}));
+    if(res.ok){localStorage.removeItem('draft');toast('List locked ✓')}else toast(j.error||'Upload failed.');
+  };
+}
+function creatorStatus(){
+  if(!C.built)buildCreator();
+  const lk=S&&S.locked;$('cst').textContent=lk?'Locked ✓ · you can close this page':cnt()+'/30 Pokémon named';
+  document.querySelectorAll('[data-n],[data-i],#lk').forEach(x=>x.disabled=!!lk);
+}
+if(view==='creator')buildCreator();
+connect();
+</script></body></html>

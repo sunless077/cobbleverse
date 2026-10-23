@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cobbleverse-auction
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: HOST_KEY
+        generateValue: true
+      - key: CREATOR_KEY
+        generateValue: true
