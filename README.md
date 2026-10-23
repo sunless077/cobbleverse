@@ -39,6 +39,4 @@ Sprites load from the smogon/sprites repo via jsDelivr (pinned to a commit); the
 Files in `public/music/pokemon/` named after a Pokémon (e.g. `dialga.mp3`, `dialga+palkia.mp3`) play during that Pokémon's auction.
 See the README.txt in that folder.
 
-## Stage music
-Files in `public/music/stage/` with `legendary`, `mega` or `uber` in the name play during that stage's auctions
-(a Pokémon-specific file in `public/music/pokemon/` still wins). See the README.txt in that folder.
+

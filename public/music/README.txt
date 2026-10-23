@@ -1,4 +1,21 @@
-Optional: put your own audio files here (.mp3 .ogg .wav .m4a) and redeploy.
-If any are found they replace the built-in chiptune background music.
-Name a file with "battle" in it to play during live auctions, "lobby" (or "route") for the lobby and waiting screens.
-Files with neither word play in both. The built-in sound effects (bids, reveal, sold) always stay.
+MUSIC GUIDE
+===========
+How it works: one standard BATTLE track plays during every live auction, one standard LOBBY track plays
+the rest of the time, and a Pokémon with its own theme switches the music when it appears.
+Put audio files (.mp3 .ogg .wav .m4a) in these places, then redeploy.
+
+STANDARD TRACKS (public/music/)
+   battle-anything.mp3      plays during every live auction     (file name contains "battle")
+   lobby-anything.mp3       plays in the lobby / between lots   (file name contains "lobby" or "route")
+   Several files with the same word = one is picked at random.
+   Files with neither word play in both places.
+
+POKÉMON THEMES (public/music/pokemon/)
+   dialga.mp3               plays for Dialga
+   dialga+palkia.mp3        plays for Dialga or Palkia (+ shares one file)
+   mewtwo.mp3               plays for Mewtwo, not Mew
+   mega-charizard-y.mp3     plays for Mega Charizard Y; charizard.mp3 would cover any Charizard form
+   Names ignore capitals and punctuation ("mr-mime.mp3" = Mr. Mime). A dedicated file beats a shared one.
+
+ORDER during a live auction:  Pokémon file > battle file > built-in chiptune
+Outside auctions:             lobby file > built-in chiptune
