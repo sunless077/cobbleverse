@@ -34,3 +34,11 @@ To use your own music instead, add audio files to `public/music/` (see the READM
 ## Trainer avatars
 Players pick a trainer sprite (632 from Gen 1–7 games) when joining, and can change it later by tapping their own avatar.
 Sprites load from the smogon/sprites repo via jsDelivr (pinned to a commit); the list is in `public/trainers.json`.
+
+## Pokémon-specific music
+Files in `public/music/pokemon/` named after a Pokémon (e.g. `dialga.mp3`, `dialga+palkia.mp3`) play during that Pokémon's auction.
+See the README.txt in that folder.
+
+## Stage music
+Files in `public/music/stage/` with `legendary`, `mega` or `uber` in the name play during that stage's auctions
+(a Pokémon-specific file in `public/music/pokemon/` still wins). See the README.txt in that folder.

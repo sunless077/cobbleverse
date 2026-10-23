@@ -200,7 +200,10 @@ const app = express();
 app.use(express.json({ limit: '15mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/healthz', (_, res) => res.send('ok'));
-app.get('/api/music', (_, res) => fs.readdir(path.join(__dirname, 'public', 'music'), (e, f) => res.json((f || []).filter(x => /\.(mp3|ogg|wav|m4a)$/i.test(x)))));
+const audioFiles = d => { try { return fs.readdirSync(d).filter(x => /\.(mp3|ogg|wav|m4a)$/i.test(x)); } catch { return []; } };
+app.get('/api/music', (_, res) => res.json({ files: audioFiles(path.join(__dirname, 'public', 'music')),
+  pokemon: audioFiles(path.join(__dirname, 'public', 'music', 'pokemon')),
+  stage: audioFiles(path.join(__dirname, 'public', 'music', 'stage')) }));
 app.get('/api/search', async (req, res) => {
   const k = req.get('x-creator-key') || '';
   if (!same(k, CREATOR_KEY)) return res.status(403).json({ error: 'Wrong creator key.' });
