@@ -1,69 +1,96 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Cobbleverse Mystery Auction</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Inter:wght@400;600&display=swap">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23fff' stroke='%23111' stroke-width='8'/%3E%3Cpath d='M4 50a46 46 0 0 1 92 0z' fill='%23ee1515' stroke='%23111' stroke-width='8'/%3E%3Ccircle cx='50' cy='50' r='13' fill='%23fff' stroke='%23111' stroke-width='8'/%3E%3C/svg%3E"><title>Cobbleverse Mystery Auction</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600&display=swap">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
---bg:#eef0f6;--bg2:#e2e5f0;--card:rgba(255,255,255,.8);--ink:#14162a;--mut:#5d6180;--line:rgba(20,22,42,.12);--st:#7c4dff;--gold:#c98a00;--ok:#13a05a;--bad:#e0334f;color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0b16;--bg2:#141630;--card:rgba(24,26,52,.72);--ink:#eef0ff;--mut:#9ba0c9;--line:rgba(160,170,255,.16);--gold:#ffc83d;--ok:#3ddc97;--bad:#ff5d7a;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0a0b16;--bg2:#141630;--card:rgba(24,26,52,.72);--ink:#eef0ff;--mut:#9ba0c9;--line:rgba(160,170,255,.16);--gold:#ffc83d;--ok:#3ddc97;--bad:#ff5d7a;color-scheme:dark}
+--bg:#e6e9f4;--bg2:#fff;--card:#fff;--ink:#1a1c2c;--mut:#59607c;--line:#c5cae0;--edge:#1a1c2c;--st:#ee1515;--red:#ee1515;--yel:#ffcb05;--blue:#3b4cca;--gold:#b87d00;--ok:#14a85c;--bad:#e0334f;--px:"Press Start 2P",ui-monospace,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0d1f;--bg2:#171a36;--card:#1a1e3e;--ink:#f4f5ff;--mut:#a3a8d1;--line:#363c78;--edge:#000;--gold:#ffcb05;--ok:#3ddc97;--bad:#ff5d7a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b0d1f;--bg2:#171a36;--card:#1a1e3e;--ink:#f4f5ff;--mut:#a3a8d1;--line:#363c78;--edge:#000;--gold:#ffcb05;--ok:#3ddc97;--bad:#ff5d7a;color-scheme:dark}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*:before,*:after{box-sizing:inherit}
-body{margin:0;min-height:100vh;color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif;background:radial-gradient(900px 500px at 15% -10%,color-mix(in srgb,var(--st) 35%,transparent),transparent),radial-gradient(700px 500px at 100% 0,rgba(0,200,255,.14),transparent),var(--bg);transition:background .6s}
-body.s1{--st:#ffb020}body.s2{--st:#ff3d9a}body.s3{--st:#ff4b3a}body.lobby{--st:#7c4dff}
-.hd{font-family:"Chakra Petch",Inter,sans-serif}
-main{max-width:1120px;margin:0 auto;padding:14px;display:grid;gap:14px;grid-template-columns:1fr}
+body{margin:0;min-height:100vh;color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif;background:radial-gradient(800px 420px at 10% -8%,color-mix(in srgb,var(--st) 28%,transparent),transparent),radial-gradient(600px 400px at 100% 0,color-mix(in srgb,var(--blue) 22%,transparent),transparent),var(--bg);transition:background .6s}
+body::before{content:"";position:fixed;right:-170px;bottom:-170px;width:540px;height:540px;border-radius:50%;border:34px solid var(--ink);background:linear-gradient(var(--red) 0 44%,transparent 44% 56%,var(--bg2) 56%);opacity:.055;pointer-events:none}
+body.s1{--st:#ffcb05}body.s2{--st:#ff4fa3}body.s3{--st:#ee1515}body.lobby{--st:#ee1515}
+.hd{font-family:var(--px)}
+main{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:14px 14px 70px;display:grid;gap:16px;grid-template-columns:1fr}
 @media(min-width:900px){main{grid-template-columns:1.6fr 1fr}.wide{grid-column:1/-1}}
-.card{background:var(--card);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:18px;padding:16px}
-h1{margin:0;font-size:1.5rem;letter-spacing:.04em}
-h2{font-size:.72rem;margin:0 0 10px;text-transform:uppercase;letter-spacing:.14em;color:var(--mut)}
+.card{background:var(--card);border:3px solid var(--edge);border-radius:18px;padding:16px;box-shadow:0 5px 0 rgba(0,0,0,.22)}
+h1{margin:0;font:400 .85rem/1.5 var(--px);letter-spacing:.03em;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.35);flex:1}
+h2{font:400 .62rem/1.4 var(--px);margin:0 0 12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
 .mut{color:var(--mut)}.ok{color:var(--ok)}.bad{color:var(--bad)}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.pips{display:flex;gap:6px}
-.pip{padding:5px 12px;border-radius:999px;border:1px solid var(--line);font-size:.78rem;font-weight:600;color:var(--mut)}
-.pip.on{color:#111;background:var(--st);border-color:var(--st);box-shadow:0 0 18px color-mix(in srgb,var(--st) 60%,transparent)}
-.pip.done{color:var(--ok)}
-.arena{min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;border-color:color-mix(in srgb,var(--st) 55%,var(--line));box-shadow:0 0 50px color-mix(in srgb,var(--st) 22%,transparent) inset}
-.q{width:190px;height:190px;border-radius:50%;display:grid;place-items:center;font:700 5.5rem "Chakra Petch",sans-serif;color:var(--st);background:conic-gradient(from 0deg,var(--st),transparent 40%,var(--st));padding:5px;animation:spin 6s linear infinite}
-.q span{width:100%;height:100%;border-radius:50%;background:var(--bg2);display:grid;place-items:center;animation:spin 6s linear infinite reverse}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pop{0%{transform:scale(.3) rotate(-14deg);opacity:0}60%{transform:scale(1.08) rotate(2deg);opacity:1}100%{transform:none}}
-.mon{width:200px;height:200px;border-radius:24px;object-fit:contain;background:radial-gradient(circle,color-mix(in srgb,var(--st) 35%,transparent),transparent 70%);animation:pop .7s cubic-bezier(.2,.9,.3,1.2)}
-.ph{display:grid;place-items:center;font:700 4rem "Chakra Petch",sans-serif;color:var(--st);border:2px dashed var(--st)}
-.name{font:700 2.2rem "Chakra Petch",sans-serif;letter-spacing:.05em;text-transform:uppercase}
-.bid{font:700 3.4rem/1 "Chakra Petch",sans-serif;color:var(--gold);text-shadow:0 0 24px color-mix(in srgb,var(--gold) 50%,transparent)}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:linear-gradient(#f43a3a,#c80f0f 70%);border:3px solid #111;border-radius:18px;padding:10px 16px;box-shadow:0 5px 0 #7a0a0a}
+.lens{width:40px;height:40px;border-radius:50%;flex:none;border:4px solid #fff;background:radial-gradient(circle at 35% 30%,#d8f6ff,#35b6ff 45%,#1262c9);box-shadow:0 0 0 3px #111,0 0 18px #5ccbff;animation:blink 2.6s infinite}
+@keyframes blink{0%,86%,100%{filter:none}92%{filter:brightness(1.6)}}
+.pips{display:flex;gap:6px;flex-wrap:wrap}
+.pip{padding:6px 12px;border-radius:999px;border:3px solid #111;background:rgba(255,255,255,.88);font:400 .55rem var(--px);color:#444}
+.pip.on{background:var(--yel);color:#111;box-shadow:0 0 14px rgba(255,203,5,.8)}
+.pip.done{background:#b8f5cf;color:#0a5c2c}
+.arena{position:relative;min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;overflow:hidden;background:linear-gradient(var(--card),var(--card));border-color:var(--edge);box-shadow:0 5px 0 rgba(0,0,0,.22),inset 0 0 70px color-mix(in srgb,var(--st) 24%,transparent)}
+.arena::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.05) 0 2px,transparent 2px 4px)}
+.arena>*{position:relative;z-index:1}
+.ball{width:150px;height:150px;border-radius:50%;position:relative;border:6px solid #111;background:linear-gradient(#ee1515 0 45%,#111 45% 55%,#fff 55%);box-shadow:0 8px 0 rgba(0,0,0,.25);animation:wig 2.6s infinite}
+.ball i{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:#fff;border:6px solid #111;animation:glow 1.6s infinite}
+@keyframes wig{0%,55%,100%{transform:rotate(0)}62%{transform:rotate(-16deg)}72%{transform:rotate(13deg)}82%{transform:rotate(-8deg)}90%{transform:rotate(4deg)}}
+@keyframes glow{50%{box-shadow:0 0 24px 8px rgba(255,203,5,.75);background:#fffbe0}}
+@keyframes pop{0%{transform:scale(.2) rotate(-14deg);opacity:0;filter:brightness(4)}55%{transform:scale(1.12) rotate(2deg);opacity:1;filter:brightness(1.6)}100%{transform:none;filter:none}}
+.mon{width:210px;height:210px;border-radius:24px;object-fit:contain;background:radial-gradient(circle,color-mix(in srgb,var(--st) 38%,transparent),transparent 68%);animation:pop .8s cubic-bezier(.2,.9,.3,1.2)}
+.mon{filter:drop-shadow(0 8px 0 rgba(0,0,0,.18))}
+.ph{display:grid;place-items:center;font:400 3rem var(--px);color:var(--st);border:3px dashed var(--st)}
+.name{font:400 1.15rem/1.5 var(--px);text-transform:uppercase;letter-spacing:.03em}
+.bid{font:400 2.3rem/1.2 var(--px);color:var(--gold);text-shadow:3px 3px 0 rgba(0,0,0,.25)}
 .ring{position:relative;width:96px;height:96px}
 .ring svg{transform:rotate(-90deg)}
-.ring b{position:absolute;inset:0;display:grid;place-items:center;font:700 1.7rem "Chakra Petch",sans-serif}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:400 1.2rem var(--px)}
 .ring.low b{color:var(--bad)}
-.bb{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--gold);color:#111;font-weight:700;font-size:.72rem;letter-spacing:.08em}
-button{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 16px;border-radius:12px;cursor:pointer;transition:transform .1s}
+.bb{display:inline-block;padding:3px 9px;border-radius:8px;border:2px solid #111;background:var(--yel);color:#111;font:400 .55rem var(--px)}
+button{font:inherit;font-weight:700;border:3px solid var(--edge);border-bottom-width:5px;background:var(--bg2);color:var(--ink);padding:8px 15px;border-radius:12px;cursor:pointer;transition:transform .08s}
 button:hover:not(:disabled){transform:translateY(-1px)}
-button.p{background:var(--st);color:#111;border-color:var(--st);box-shadow:0 4px 20px color-mix(in srgb,var(--st) 45%,transparent)}
+button:active:not(:disabled){transform:translateY(2px);border-bottom-width:3px}
+button.p{background:var(--st);color:#111}
 button:disabled{opacity:.4;cursor:not-allowed}
-input,select{font:inherit;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--ink);min-width:0}
+input,select{font:inherit;padding:9px 11px;border-radius:10px;border:3px solid var(--line);background:var(--bg2);color:var(--ink);min-width:0}
+input:focus,select:focus{outline:0;border-color:var(--st)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:8px}
-.tr{display:grid;grid-template-columns:1fr auto;gap:6px 10px;padding:10px 0;border-top:1px solid var(--line)}
+.tr{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 10px;padding:10px 0;border-top:2px dashed var(--line)}
 .tr:first-of-type{border-top:0}
-.me{color:var(--st);font-weight:700}
-.sl{display:flex;gap:5px}
-.sl i{width:34px;height:34px;border-radius:9px;border:1px dashed var(--line);display:grid;place-items:center;font:700 .7rem "Chakra Petch",sans-serif;color:var(--mut);font-style:normal;overflow:hidden}
-.sl i.on{border:1px solid var(--st)}
+.tr .hd{font-size:.95rem!important}
+.me{color:var(--st);font-weight:700;text-shadow:0 0 1px #000}
+.sl{display:flex;gap:5px;margin-top:4px}
+.sl i{width:36px;height:36px;border-radius:50%;border:3px solid var(--line);display:grid;place-items:center;font:400 .55rem var(--px);color:var(--mut);font-style:normal;overflow:hidden;background:var(--bg2)}
+.sl i.on{border-color:var(--st);box-shadow:0 0 8px color-mix(in srgb,var(--st) 60%,transparent)}
 .sl img{width:100%;height:100%;object-fit:contain}
+.hp{height:10px;border-radius:6px;background:#222;border:2px solid #111;overflow:hidden;margin-top:6px}
+.hp b{display:block;height:100%;background:var(--ok);transition:width .6s}
+.hp b.m{background:#ffcb05}.hp b.l{background:var(--bad)}
 .log{max-height:260px;overflow:auto}
-.lr{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
-.lr img,.lr .th{width:36px;height:36px;object-fit:contain;border-radius:8px;flex:none}
+.lr{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:2px dashed var(--line)}
+.lr img,.lr .th{width:38px;height:38px;object-fit:contain;border-radius:10px;flex:none}
 .f{display:flex;flex-direction:column;gap:3px;text-align:left}.f label{font-size:.78rem;color:var(--mut)}
 .chk{text-align:left;font-size:.92rem}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(70px + env(safe-area-inset-bottom,0px));background:#111;color:#fff;border:3px solid var(--yel);padding:10px 16px;border-radius:12px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
 #toast.on{opacity:1}
+#mus{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:center;background:var(--card);border:3px solid var(--edge);border-radius:999px;padding:4px 12px 4px 4px;z-index:8;box-shadow:0 4px 0 rgba(0,0,0,.22)}
+#mus button{border-radius:50%;width:36px;height:36px;padding:0;font-size:1.05rem}
+#mus input{width:84px;padding:0;border:0;background:none;accent-color:var(--st)}
 .cg{display:grid;gap:8px}
 .cs{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center}
-.cs img,.cs .th{width:46px;height:46px;object-fit:contain;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;color:var(--mut);font-size:.7rem}
-@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+.cs img,.cs .th{width:46px;height:46px;object-fit:contain;border-radius:10px;border:2px solid var(--line)}
 .cand{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;padding:2px 0 8px 32px}
-.cd{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border-radius:12px;width:84px;font-size:.65rem;color:var(--mut)}
+.cd{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border-radius:12px;width:84px;font-size:.62rem;color:var(--mut);border-bottom-width:3px}
 .cd img{width:72px;height:72px;object-fit:contain}
-.cd.sel{outline:2px solid var(--st);background:color-mix(in srgb,var(--st) 18%,transparent);color:var(--ink)}
+.cd.sel{background:color-mix(in srgb,var(--st) 25%,var(--bg2));color:var(--ink);border-color:var(--st)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+.av{width:56px;height:56px;border-radius:14px;border:3px solid var(--line);background:var(--bg2);display:inline-grid;place-items:center;overflow:hidden;flex:none;padding:0;vertical-align:middle;font:400 .8rem var(--px);color:var(--st)}
+.av img{max-width:100%;max-height:100%;image-rendering:pixelated;object-fit:contain}
+.av.me{border-color:var(--st)}
+.av.s{width:26px;height:26px;border-radius:8px;border-width:2px;font-size:.5rem}
+button.av{border-bottom-width:5px;cursor:pointer}
+.pkw{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;z-index:20;padding:calc(12px + env(safe-area-inset-top,0px)) 12px 12px;overflow:auto}
+.pkw.on{display:block}.pkc{max-width:900px;margin:0 auto}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:8px;max-height:58vh;overflow:auto;margin-top:12px;padding:2px}
+.pt{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 3px;font-size:.62rem;font-weight:600;border-bottom-width:3px;line-height:1.2}
+.pt img{width:60px;height:64px;object-fit:contain;image-rendering:pixelated}
+.pt.sel{background:color-mix(in srgb,var(--st) 28%,var(--bg2));border-color:var(--st)}
 </style></head>
 <body class="lobby"><main id="app"><div class="card wide">Connecting…</div></main><div id="toast"></div>
 <script>
@@ -86,6 +113,14 @@ function connect(){
     else if(m.t==='authfail'){localStorage.removeItem('hostKey');toast('Wrong host key.')}};
   ws.onclose=()=>setTimeout(connect,1500);
 }
+const TRB='https://cdn.jsdelivr.net/gh/smogon/sprites@230bd7a051f167166065c91f8ec09ed36102eccf/src/_uncategorized/canonical/trainers/';
+const TRR='https://raw.githubusercontent.com/smogon/sprites/230bd7a051f167166065c91f8ec09ed36102eccf/src/_uncategorized/canonical/trainers/';
+const avPath=id=>id.split('/').map(encodeURIComponent).join('/');
+function avFb(e){if(e.dataset.f)return;e.dataset.f=1;e.src=TRR+avPath(e.dataset.p)}
+const avTag=(id,cls,extra)=>'<span class="av '+(cls||'')+'"'+(extra||'')+'>'+(id?'<img src="'+TRB+avPath(id)+'" data-p="'+esc(id)+'" onerror="avFb(this)" loading="lazy" alt="">':'?')+'</span>';
+const avOf=pid=>{const p=S&&S.players.find(p=>p.id===pid);return p&&p.av};
+const nmv=pid=>avTag(avOf(pid),'s')+' '+nm(pid);
+let myAv=localStorage.getItem('av')||'';
 const nm=id=>{const p=S.players.find(p=>p.id===id);return p?esc(p.name):'—'};
 function pic(id,name,cls){return id?'<img class="'+cls+'" src="/img/'+id+'" alt="">':'<div class="'+cls+' ph">'+esc((name||'?')[0])+'</div>'}
 const won=(id,st)=>S.results.find(r=>r.stage===st&&r.winner===id);
@@ -95,45 +130,46 @@ function renderMain(){
   const r=S.room,a=S.auction,y=S.you,live=r.status==='live',done=r.status==='done';
   document.body.className=r.status==='lobby'?'lobby':'s'+r.stage;
   const pips=[1,2,3].map(s=>{const d=done||(live&&r.stage>s);return'<span class="pip '+(live&&r.stage===s?'on':'')+(d?' done':'')+'">'+(d?'✓ ':'')+STG[s]+'</span>'}).join('');
-  const bbTxt=r.bb?'<div class="mut">Big Blind: <span class="bb">BB</span> <b>'+nm(r.bb)+'</b></div>':'';
+  const bbTxt=r.bb?'<div class="mut">Big Blind: <span class="bb">BB</span> <b>'+nmv(r.bb)+'</b></div>':'';
   let arena='';
   if(r.status==='lobby'){
     const n=S.players.length;
-    arena='<div class="q"><span>?</span></div><div class="name">Mystery Auction</div><div class="mut">3 stages · 1,000 coins · one Pokémon per stage</div>'+
+    arena='<div class="ball"><i></i></div><div class="name">Mystery Auction</div><div class="mut">3 stages · 1,000 coins · one Pokémon per stage</div>'+
      '<div class="chk"><div>'+(n===10?'✅':'⬜')+' Trainers joined: <b>'+n+'/10</b></div><div>'+(r.test?'🧪 Test run: dummy Pokémon will be used':(S.locked?'✅':'⬜')+' Pokémon list locked in')+'</div></div>'+
-     (y.joined?'<div class="mut">You’re in as <b>'+nm(y.id)+'</b>.</div>':n>=10?'<div class="bad">Room is full.</div>':'<div class="row"><input id="jn" maxlength="20" placeholder="Trainer name"><button class="p" id="jb">Join</button></div>');
+     (y.joined?'<div class="mut">You’re in as <b>'+nm(y.id)+'</b>.</div>':n>=10?'<div class="bad">Room is full.</div>':'<div class="row"><button class="av" id="jav" title="Choose your trainer" data-pick="1" style="width:64px;height:64px">'+(myAv?'<img src="'+TRB+avPath(myAv)+'" data-p="'+esc(myAv)+'" onerror="avFb(this)" alt="">':'?')+'</button><input id="jn" maxlength="20" placeholder="Trainer name"><button class="p" id="jb">Join</button></div><div class="mut">Tap the box to pick your trainer sprite.</div>');
   }else if(done){
     arena='<div class="name">Draft complete 🏆</div><div class="mut">Check every trainer’s team on the right.</div>';
   }else if(!a||(a.state==='sold'&&a.stage!==r.stage)){
-    arena='<div class="mut">STAGE '+r.stage+' · '+STG[r.stage].toUpperCase()+'</div><div class="q"><span>?</span></div><div class="name">Next reveal…</div><div class="mut">Waiting for the host.</div>'+bbTxt;
+    arena='<div class="mut">STAGE '+r.stage+' · '+STG[r.stage].toUpperCase()+'</div><div class="ball"><i></i></div><div class="name">Next reveal…</div><div class="mut">Waiting for the host.</div>'+bbTxt;
   }else if(a.state==='live'){
     const h=S.high,me=y.joined,w=won(y.id,a.stage),min=h?h.amount+1:1,mx=me?S.bal[y.id]-(3-r.stage):0;
     arena='<div class="mut">'+STG[a.stage].toUpperCase()+' · LIVE</div>'+pic(a.img,a.name,'mon')+'<div class="name">'+esc(a.name)+'</div>'+
-      '<div class="row" style="gap:24px"><div><div class="mut">'+(h?(h.blind?'Big Blind opening':'Highest bid'):'No bids yet')+'</div><div class="bid">'+(h?h.amount:0)+'</div><div class="mut">'+(h?'<b>'+nm(h.bidder)+'</b>':'&nbsp;')+'</div></div>'+
+      '<div class="row" style="gap:24px"><div><div class="mut">'+(h?(h.blind?'Big Blind opening':'Highest bid'):'No bids yet')+'</div><div class="bid">'+(h?h.amount:0)+'</div><div class="mut">'+(h?'<b>'+nmv(h.bidder)+'</b>':'&nbsp;')+'</div></div>'+
       '<div class="ring" id="rg"><svg width="96" height="96"><circle cx="48" cy="48" r="42" fill="none" stroke="var(--line)" stroke-width="7"/><circle id="rc" cx="48" cy="48" r="42" fill="none" stroke="var(--st)" stroke-width="7" stroke-linecap="round" stroke-dasharray="264"/></svg><b id="tm"></b></div></div>'+bbTxt+
       (me&&!w?'<div class="mut">Your coins: <b>'+S.bal[y.id]+'</b> · max bid <b>'+mx+'</b></div><div class="row"><button class="p" data-b="'+min+'">Bid '+min+'</button><button data-b="'+(h?h.amount+50:50)+'">'+(h?'+50 → '+(h.amount+50):'Bid 50')+'</button><input id="cb" type="number" inputmode="numeric" placeholder="Custom" style="width:110px"><button id="cbb">Bid</button></div>':
        me?'<div class="ok">You already own your '+STG[a.stage]+'.</div>':'<div class="mut">You’re spectating.</div>');
   }else{
-    arena='<div class="mut">SOLD</div>'+pic(a.img,a.name,'mon')+'<div class="name">'+esc(a.name)+'</div><div class="bid">'+a.price+'</div><div>to <b>'+nm(a.winner)+'</b>'+(a.byBlind?' <span class="bb">BIG BLIND</span>':'')+'</div>'+bbTxt;
+    arena='<div class="mut">SOLD</div>'+pic(a.img,a.name,'mon')+'<div class="name">'+esc(a.name)+'</div><div class="bid">'+a.price+'</div><div>to <b>'+nmv(a.winner)+'</b>'+(a.byBlind?' <span class="bb">BIG BLIND</span>':'')+'</div>'+bbTxt;
   }
   const keep=document.activeElement&&document.activeElement.id==='cb'?document.activeElement.value:null;
   const trainers=S.players.map(p=>{
     const slots=[1,2,3].map(s=>{const x=won(p.id,s);return'<i class="'+(x?'on':'')+'" title="'+(x?esc(x.name)+' · '+x.price:STG[s])+'">'+(x&&x.img?'<img src="/img/'+x.img+'" alt="">':x?esc(x.name[0]):ST3[s])+'</i>'}).join('');
-    return'<div class="tr"><div><span class="'+(p.id===y.id?'me':'')+'">'+esc(p.name)+(p.bot?' 🤖':'')+(p.id===y.id?' (you)':'')+'</span> '+(r.bb===p.id&&live?'<span class="bb">BB</span>':'')+
-     (y.isHost&&r.status==='lobby'?' <a href="#" data-k="'+p.id+'" class="mut">remove</a>':'')+'<div class="sl">'+slots+'</div></div><div style="text-align:right"><b class="hd" style="font-size:1.3rem">'+S.bal[p.id]+'</b><div class="mut">coins</div></div></div>'}).join('')||'<span class="mut">Nobody yet.</span>';
-  const hist=S.results.slice().sort((x,y)=>y.seq-x.seq).slice(0,25).map(x=>'<div class="lr">'+pic(x.img,x.name,'th')+'<div style="flex:1"><b>'+esc(x.name)+'</b> <span class="mut">'+STG[x.stage]+'</span><br><span class="mut">'+nm(x.winner)+(x.byBlind?' · Big Blind':'')+'</span></div><b class="hd">'+x.price+'</b></div>').join('')||'<span class="mut">No sales yet.</span>';
+    return'<div class="tr">'+(p.id===y.id?avTag(p.av,'me',' role="button" data-pick="1" title="Change avatar" style="cursor:pointer"'):avTag(p.av,''))+'<div><span class="'+(p.id===y.id?'me':'')+'">'+esc(p.name)+(p.bot?' 🤖':'')+(p.id===y.id?' (you)':'')+'</span> '+(r.bb===p.id&&live?'<span class="bb">BB</span>':'')+
+     (y.isHost&&r.status==='lobby'?' <a href="#" data-k="'+p.id+'" class="mut">remove</a>':'')+'<div class="sl">'+slots+'</div><div class="hp"><b class="'+(S.bal[p.id]<200?'l':S.bal[p.id]<500?'m':'')+'" style="width:'+Math.max(0,S.bal[p.id]/10)+'%"></b></div></div><div style="text-align:right"><b class="hd" style="font-size:1.3rem">'+S.bal[p.id]+'</b><div class="mut">coins</div></div></div>'}).join('')||'<span class="mut">Nobody yet.</span>';
+  const hist=S.results.slice().sort((x,y)=>y.seq-x.seq).slice(0,25).map(x=>'<div class="lr">'+pic(x.img,x.name,'th')+'<div style="flex:1"><b>'+esc(x.name)+'</b> <span class="mut">'+STG[x.stage]+'</span><br><span class="mut">'+nmv(x.winner)+(x.byBlind?' · Big Blind':'')+'</span></div><b class="hd">'+x.price+'</b></div>').join('')||'<span class="mut">No sales yet.</span>';
   const open=document.querySelector('details#hl')&&document.querySelector('details#hl').open;
   const focusHost=$('hostp')&&$('hostp').contains(document.activeElement)&&/INPUT|SELECT/.test(document.activeElement.tagName);
   const hostHtml=focusHost?$('hostp').innerHTML:hostPanel();
-  $('app').innerHTML='<div class="wide top"><h1 class="hd">⚡ COBBLEVERSE MYSTERY AUCTION</h1><div class="pips">'+(r.test?'<span class="pip" style="color:var(--gold);border-color:var(--gold)">🧪 TEST RUN</span>':'')+pips+'</div></div>'+
+  $('app').innerHTML='<div class="wide top"><span class="lens"></span><h1>COBBLEVERSE MYSTERY AUCTION</h1><div class="pips">'+(r.test?'<span class="pip" style="color:var(--gold);border-color:var(--gold)">🧪 TEST RUN</span>':'')+pips+'</div></div>'+
     '<section class="card arena">'+arena+'</section><section class="card"><h2>Trainers</h2>'+trainers+'</section>'+
     '<section class="card"><h2>Auction history</h2><div class="log">'+hist+'</div></section><section class="card" id="hostp">'+hostHtml+'</section>';
   if(open)document.querySelector('details#hl').open=true;
-  const jb=$('jb');if(jb)jb.onclick=()=>send({t:'join',name:$('jn').value});
+  const jb=$('jb');if(jb)jb.onclick=()=>send({t:'join',name:$('jn').value,av:myAv});
+  document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=openPicker);
   document.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>send({t:'bid',amount:+b.dataset.b}));
   document.querySelectorAll('[data-k]').forEach(b=>b.onclick=e=>{e.preventDefault();H('kick',{id:b.dataset.k})});
   const cb=$('cb');if(cb){if(keep!==null){cb.value=keep;cb.focus()}const go=()=>send({t:'bid',amount:parseInt(cb.value,10)});$('cbb').onclick=go;cb.onkeydown=e=>{if(e.key==='Enter')go()}}
-  wireHost();tick();
+  wireHost();tick();audioSync();
 }
 function hostPanel(){
   const y=S.you,r=S.room,a=S.auction;
@@ -178,6 +214,7 @@ function tick(){
   if(view!=='main'||!S||!S.auction||S.auction.state!=='live')return;
   const ms=S.auction.endsAt-now(),s=Math.max(0,Math.ceil(ms/1000)),t=$('tm'),c=$('rc');
   if(t){t.textContent=s;$('rg').classList.toggle('low',s<=10)}
+  if(s>0&&s<=5&&AU.lt!==s){AU.lt=s;sfx('tick')}
   if(c)c.style.strokeDashoffset=264*(1-Math.min(1,Math.max(0,ms/1000/Math.max(S.room.timer,10))));
   const b=$('hs');if(b)b.disabled=ms>0;
 }
@@ -207,7 +244,7 @@ async function find(k){
 }
 function buildCreator(){
   C.built=true;
-  let h='<div class="wide top"><h1 class="hd">🎴 POOL KEEPER</h1><div class="mut" id="cst"></div></div><section class="card wide"><div class="row" style="justify-content:flex-start"><div class="f"><label>Creator key</label><input id="ck" type="password" placeholder="Creator key"></div><button id="fa">Find pictures for all</button></div>'+
+  let h='<div class="wide top"><span class="lens"></span><h1>POOL KEEPER</h1><div class="mut" id="cst"></div></div><section class="card wide"><div class="row" style="justify-content:flex-start"><div class="f"><label>Creator key</label><input id="ck" type="password" placeholder="Creator key"></div><button id="fa">Find pictures for all</button></div>'+
    '<p class="mut">Type each Pokémon’s name. Pictures are looked up automatically: click the one you want (the first is pre-selected). You can also upload your own. The server keeps the list secret and only shows a Pokémon when it’s revealed.</p></section>';
   for(let s=1;s<=3;s++){h+='<section class="card"><h2>Stage '+s+' · '+STG[s]+'</h2><div class="cg">';
     for(let i=0;i<10;i++){const k='s'+s+'_'+i;h+='<div class="cs"><span class="mut">'+(i+1)+'</span><input data-n="'+k+'" maxlength="30" placeholder="Pokémon name"><span style="display:flex;gap:6px;align-items:center"><span id="p'+k+'"></span><button data-i="'+k+'">Upload</button><input type="file" accept="image/*" data-f="'+k+'" hidden></span><div class="cand" id="c'+k+'"></div></div>'}
@@ -240,6 +277,81 @@ function creatorStatus(){
   const lk=S&&S.locked;$('cst').textContent=lk?'Locked ✓ · you can close this page':cnt()+'/30 Pokémon named';
   document.querySelectorAll('[data-n],[data-i],#lk,#fa,.cd').forEach(x=>x.disabled=!!lk);
 }
+
+
+/* ---------- trainer avatar picker ---------- */
+let TRN=null;
+async function openPicker(){
+  if(!TRN){try{TRN=await (await fetch('/trainers.json')).json()}catch(e){return toast('Couldn’t load trainers.')}}
+  let el=$('pk');
+  if(!el){document.body.insertAdjacentHTML('beforeend','<div class="pkw" id="pk"><div class="pkc card"><h2>Choose your trainer</h2><div class="row" style="justify-content:flex-start"><input id="pq" placeholder="Search: Red, Cynthia, Brock…"><select id="pg"><option value="">All games</option>'+[...new Set(TRN.map(t=>t.g))].map(g=>'<option>'+esc(g)+'</option>').join('')+'</select><button id="pr">🎲 Random</button><button id="px">Close</button></div><div class="pgrid" id="pgrid"></div></div></div>');el=$('pk');
+    $('pq').oninput=pkDraw;$('pg').onchange=pkDraw;$('px').onclick=()=>el.classList.remove('on');el.onclick=e=>{if(e.target===el)el.classList.remove('on')};
+    $('pr').onclick=()=>pkSet(TRN[Math.floor(Math.random()*TRN.length)].id);
+    $('pgrid').onclick=e=>{const b=e.target.closest('.pt');if(b)pkSet(b.dataset.id)}}
+  el.classList.add('on');pkDraw();
+}
+function pkDraw(){
+  const q=$('pq').value.trim().toLowerCase(),g=$('pg').value;
+  $('pgrid').innerHTML=TRN.filter(t=>(!g||t.g===g)&&(!q||t.n.toLowerCase().includes(q))).map(t=>
+    '<button class="pt'+(t.id===myAv?' sel':'')+'" data-id="'+esc(t.id)+'" title="'+esc(t.n+' · '+t.g)+'"><img src="'+TRB+avPath(t.id)+'" data-p="'+esc(t.id)+'" onerror="avFb(this)" loading="lazy" alt=""><span>'+esc(t.n)+'</span></button>').join('')||'<span class="mut">No matches.</span>';
+}
+function pkSet(id){
+  myAv=id;localStorage.setItem('av',id);
+  if(S&&S.you.joined)send({t:'avatar',av:id});
+  const j=$('jav');if(j)j.innerHTML='<img src="'+TRB+avPath(id)+'" data-p="'+esc(id)+'" onerror="avFb(this)" alt="">';
+  $('pk').classList.remove('on');
+}
+
+/* ---------- sound (original chiptune, synthesized in the browser) ---------- */
+const AU={ctx:null,on:localStorage.getItem('snd')!=='0',vol:+(localStorage.getItem('vol')||.5),track:null,step:0,next:0,want:'route',cur:null,files:[],el:null};
+const mf=m=>440*Math.pow(2,(m-69)/12);
+const bars=(...b)=>b.flat();
+const TRACKS={
+ route:{bpm:112,
+  lead:bars([76,0,79,0,84,0,79,76],[81,0,76,0,72,0,76,81],[77,0,81,0,84,0,81,77],[79,0,83,0,86,0,83,79],[84,0,79,0,76,0,79,84],[81,0,84,0,88,0,84,81],[84,0,81,0,77,0,81,84],[83,0,79,0,74,0,79,83]),
+  bass:[48,45,41,43,48,45,41,43].flatMap(r=>[r,0,r+7,0,r+12,0,r+7,0])},
+ battle:{bpm:154,hat:1,
+  lead:bars([69,72,76,81,79,76,72,76],[65,69,72,77,76,72,69,72],[67,71,74,79,77,74,71,74],[64,68,71,76,74,71,68,71],[81,0,81,76,0,76,72,76],[77,0,77,72,0,72,69,72],[79,0,79,74,0,74,71,74],[76,80,83,88,83,80,76,0]),
+  bass:[45,41,43,40,45,41,43,40].flatMap(r=>[r,r,r+12,r,r,r+12,r,r])}};
+function ctxInit(){if(AU.ctx)return;const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AU.ctx=new C();AU.master=AU.ctx.createGain();AU.master.gain.value=AU.vol*.5;AU.master.connect(AU.ctx.destination)}
+function tone(f,t,d,type,g){const o=AU.ctx.createOscillator(),n=AU.ctx.createGain();o.type=type;o.frequency.value=f;n.gain.setValueAtTime(0,t);n.gain.linearRampToValueAtTime(g,t+.01);n.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(n);n.connect(AU.master);o.start(t);o.stop(t+d+.03)}
+function hat(t){const b=AU.ctx.createBuffer(1,2000,AU.ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);const s=AU.ctx.createBufferSource(),g=AU.ctx.createGain();s.buffer=b;g.gain.value=.06;s.connect(g);g.connect(AU.master);s.start(t)}
+function sched(){
+  if(!AU.ctx||!AU.on||!AU.track)return;const T=AU.track,spb=60/T.bpm/2;
+  while(AU.next<AU.ctx.currentTime+.35){const i=AU.step%T.lead.length,l=T.lead[i],b=T.bass[i];
+    if(l)tone(mf(l),AU.next,spb*.92,'square',.07);if(b)tone(mf(b),AU.next,spb*.95,'triangle',.18);if(T.hat&&i%2)hat(AU.next);AU.next+=spb;AU.step++}
+}
+setInterval(sched,100);
+const SFX={bid:[[88,.06],[93,.09]],tick:[[84,.05]],reveal:[[72,.07],[76,.07],[79,.07],[84,.07],[88,.07],[91,.18]],
+  sold:[[79,.09],[79,.09],[79,.09],[84,.28],[0,.05],[81,.09],[84,.3]],fanfare:[[72,.12],[72,.12],[72,.12],[72,.3],[68,.3],[70,.3],[72,.12],[0,.06],[70,.1],[72,.5]]};
+function sfx(n){if(!AU.ctx||!AU.on)return;let t=AU.ctx.currentTime+.02;for(const[m,d]of SFX[n]){if(m){tone(mf(m),t,d*1.1,'square',.09);tone(mf(m-12),t,d*1.1,'triangle',.1)}t+=d}}
+function playFile(mode){
+  const sp=AU.files.filter(f=>new RegExp(mode==='battle'?'battle':'lobby|route','i').test(f)),gen=AU.files.filter(f=>!/battle|lobby|route/i.test(f));
+  const list=sp.length?sp:gen;if(!list.length)return false;
+  if(!AU.el){AU.el=new Audio()}AU.el.volume=AU.vol;AU.el.onended=()=>playFile(AU.cur);
+  AU.el.src='/music/'+encodeURIComponent(list[Math.floor(Math.random()*list.length)]);AU.el.play().catch(()=>{});return true;
+}
+function setBg(mode){
+  AU.want=mode;if(!AU.ctx||!AU.on||AU.cur===mode)return;AU.cur=mode;
+  if(AU.el)AU.el.pause();AU.track=null;
+  if(!playFile(mode)){AU.track=TRACKS[mode];AU.step=0;AU.next=AU.ctx.currentTime+.08}
+}
+function audioSync(){
+  if(!S)return;const a=S.auction,r=S.room,key=a?a.seq+':'+a.state:'';
+  if(AU.key!==undefined&&key!==AU.key&&a){if(a.state==='live')sfx('reveal');else if(a.state==='sold')sfx('sold')}
+  AU.key=key;
+  const hv=S.high?S.high.amount:0;if(AU.hv!==undefined&&hv>AU.hv&&a&&a.state==='live')sfx('bid');AU.hv=hv;
+  if(r.status==='done'&&!AU.fan){AU.fan=1;sfx('fanfare')}if(r.status!=='done')AU.fan=0;
+  setBg(r.status==='live'&&a&&a.state==='live'?'battle':'route');
+}
+document.body.insertAdjacentHTML('beforeend','<div id="mus"><button id="mb" title="Sound on/off"></button><input id="mv" type="range" min="0" max="1" step="0.05" title="Volume"></div>');
+const mbIcon=()=>{$('mb').textContent=AU.on?'🔊':'🔇'};mbIcon();$('mv').value=AU.vol;
+$('mb').onclick=()=>{ctxInit();if(AU.ctx&&AU.ctx.resume)AU.ctx.resume();AU.on=!AU.on;localStorage.setItem('snd',AU.on?'1':'0');mbIcon();
+  if(!AU.on){AU.track=null;AU.cur=null;if(AU.el)AU.el.pause()}else{AU.cur=null;setBg(AU.want)}};
+$('mv').oninput=e=>{AU.vol=+e.target.value;localStorage.setItem('vol',AU.vol);if(AU.master)AU.master.gain.value=AU.vol*.5;if(AU.el)AU.el.volume=AU.vol};
+addEventListener('pointerdown',()=>{if(AU.ctx)return;ctxInit();if(AU.ctx&&AU.ctx.resume)AU.ctx.resume();if(AU.on)setBg(AU.want)},{once:false});
+fetch('/api/music').then(r=>r.json()).then(f=>{AU.files=f||[]}).catch(()=>{});
+
 if(view==='creator')buildCreator();
 connect();
 </script></body></html>

@@ -26,3 +26,11 @@ A paid instance with a disk (set DATA_FILE=/data/data.json) avoids this.
 In the lobby, the host console has "Start a test run". It uses dummy Pokémon (the real secret pool is never touched),
 lets you fill the room with dummy trainers, and can make them bid on their own or bid for them by hand.
 "Exit test run" removes the dummies and returns to a clean lobby.
+
+## Sound
+Built-in original chiptune music and sound effects (synthesized in the browser). Use the 🔊 button bottom-left.
+To use your own music instead, add audio files to `public/music/` (see the README.txt in that folder) and redeploy.
+
+## Trainer avatars
+Players pick a trainer sprite (632 from Gen 1–7 games) when joining, and can change it later by tapping their own avatar.
+Sprites load from the smogon/sprites repo via jsDelivr (pinned to a commit); the list is in `public/trainers.json`.

@@ -9,6 +9,9 @@ const HOST_KEY = process.env.HOST_KEY || rand();
 const CREATOR_KEY = process.env.CREATOR_KEY || rand();
 if (!process.env.HOST_KEY || !process.env.CREATOR_KEY)
   console.log(`[keys] HOST_KEY=${HOST_KEY}  CREATOR_KEY=${CREATOR_KEY}  (set them as environment variables to keep them stable)`);
+let TRN = [];
+try { TRN = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'trainers.json'), 'utf8')).map(t => t.id); } catch {}
+const TRS = new Set(TRN);
 const ANY_TIMER = process.env.ALLOW_ANY_TIMER === '1';
 const SNIPE = Number(process.env.SNIPE_MS) || 10000;
 
@@ -125,7 +128,7 @@ function host(c, m) {
       if (!r.test) return 'Turn on the test run first.';
       if (r.status !== 'lobby') return 'Only in the lobby.';
       let k = G.players.filter(p => p.bot).length;
-      while (G.players.length < 10) { k++; G.players.push({ id: 'bot-' + crypto.randomBytes(3).toString('hex'), name: 'Bot ' + k, bot: true }); }
+      while (G.players.length < 10) { k++; G.players.push({ id: 'bot-' + crypto.randomBytes(3).toString('hex'), name: 'Bot ' + k, bot: true, av: TRN.length ? pick(TRN) : undefined }); }
       return;
     }
     case 'rmbots':
@@ -197,6 +200,7 @@ const app = express();
 app.use(express.json({ limit: '15mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/healthz', (_, res) => res.send('ok'));
+app.get('/api/music', (_, res) => fs.readdir(path.join(__dirname, 'public', 'music'), (e, f) => res.json((f || []).filter(x => /\.(mp3|ogg|wav|m4a)$/i.test(x)))));
 app.get('/api/search', async (req, res) => {
   const k = req.get('x-creator-key') || '';
   if (!same(k, CREATOR_KEY)) return res.status(403).json({ error: 'Wrong creator key.' });
@@ -272,11 +276,12 @@ wss.on('connection', ws => {
     else if (m.t === 'join') {
       const name = String(m.name || '').trim().slice(0, 20); if (!name) return fail('Enter a name.');
       const p = G.players.find(p => p.id === c.id);
-      if (p) p.name = name;
+      if (p) { p.name = name; if (TRS.has(m.av)) p.av = m.av; }
       else if (G.room.status !== 'lobby') return fail('The draft has already started.');
       else if (G.players.length >= 10) return fail('The room is full.');
-      else G.players.push({ id: c.id, name });
+      else G.players.push({ id: c.id, name, av: TRS.has(m.av) ? m.av : undefined });
     }
+    else if (m.t === 'avatar') { const p = G.players.find(p => p.id === c.id); if (p && TRS.has(m.av)) p.av = m.av; }
     else if (m.t === 'bid') fail(bid(c, m.amount, m.as));
     else if (m.t === 'host') { if (!c.isHost) return fail('Host only.'); fail(host(c, m)); }
     broadcast();
