@@ -51,3 +51,10 @@ Uploaded themes are stored next to the data file (`themes/`), so on Render's fre
 ## Stage music
 Files in `public/music/stage/` with `legendary`, `mega` or `uber` in the name play during that stage's live auctions.
 Order: creator's uploaded theme > `pokemon/` file > stage file > `battle` file > built-in chiptune.
+
+## Library check on the creator page
+The creator page reads the music library (`public/music/pokemon/`). When a Pokémon's name matches a file there
+(for example Dialga -> `dialga+palkia.mp3`, or Mega Charizard Y -> `Mega Charizard X and Y.mp3`), it shows
+"Already in the library" with a preview and nothing needs to be uploaded. The creator can still pick a different
+library track from a dropdown or upload their own file. Order during an auction: uploaded theme > chosen library track >
+automatic library match > stage file > battle file > built-in chiptune.

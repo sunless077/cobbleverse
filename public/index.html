@@ -246,31 +246,59 @@ async function find(k){
 
 /* theme music: the creator adds an audio file they own for a Pokémon */
 const AMAX=8*1024*1024;
-C.audio={};
-function musLabel(k){const e=$('mt'+k),a=C.audio[k];if(!e)return;
-  e.innerHTML=a?'🎵 '+esc(a.file.name)+' <span class="mut">('+(a.file.size/1048576).toFixed(1)+' MB)</span> <audio controls preload="none" src="'+a.url+'" style="height:30px;vertical-align:middle;max-width:220px"></audio> <a href="#" data-xm="'+k+'">remove</a>':'<span class="mut">No theme: standard music plays</span>'}
-document.addEventListener('click',e=>{const t=e.target.closest('[data-xm]');if(!t||view!=='creator')return;e.preventDefault();if(S&&S.locked)return;
-  const k=t.dataset.xm;if(C.audio[k])URL.revokeObjectURL(C.audio[k].url);delete C.audio[k];musLabel(k)});
+C.audio={};C.libSel={};
+const libUrl=f=>'/music/pokemon/'+encodeURIComponent(f);
+const libAuto=k=>{const s=C.slots[k];return s&&s.name&&AU.mons.length?monMatch(s.name):null};
+const playerTag=src=>'<audio controls preload="none" src="'+src+'" style="height:30px;vertical-align:middle;max-width:220px"></audio>';
+function musLabel(k){
+  const e=$('mt'+k),btn=document.querySelector('[data-m="'+k+'"]');if(!e)return;
+  const a=C.audio[k],ls=C.libSel[k],auto=libAuto(k);let t;
+  if(a)t='🎵 '+esc(a.file.name)+' <span class="mut">('+(a.file.size/1048576).toFixed(1)+' MB, your upload)</span> '+playerTag(a.url)+' <a href="#" data-xm="'+k+'">remove</a>';
+  else if(ls)t='🎵 Library: <b>'+esc(ls)+'</b> '+playerTag(libUrl(ls))+' <a href="#" data-xm="'+k+'">remove</a>';
+  else if(auto)t='✅ Already in the library: <b>'+esc(auto)+'</b> '+playerTag(libUrl(auto))+' <span class="mut">Plays automatically, nothing to upload.</span> <a href="#" data-up="'+k+'">Upload my own instead</a>';
+  else t='<span class="mut">No theme: standard music plays</span>';
+  if(AU.mons.length)t+=' <select data-l="'+k+'" title="Pick any track from the library"><option value="">Pick from library…</option>'+AU.mons.map(f=>'<option value="'+esc(f)+'"'+(f===ls?' selected':'')+'>'+esc(f.replace(/\.[^.]+$/,''))+'</option>').join('')+'</select>';
+  e.innerHTML=t;
+  if(btn)btn.textContent=(a||ls||auto)?'🎵 Change theme music':'🎵 Add theme music';
+}
+function addTheme(k){   // the "Add theme music" button: check the library first
+  if(S&&S.locked)return;
+  const auto=libAuto(k);
+  if(auto&&!C.audio[k]&&!C.libSel[k]){toast('✅ Already in the library: '+auto+'. Nothing to upload.');return}
+  document.querySelector('[data-a="'+k+'"]').click();
+}
+document.addEventListener('click',e=>{
+  if(view!=='creator'||S&&S.locked)return;
+  const x=e.target.closest('[data-xm]');
+  if(x){e.preventDefault();const k=x.dataset.xm;if(C.audio[k])URL.revokeObjectURL(C.audio[k].url);delete C.audio[k];delete C.libSel[k];musLabel(k);return}
+  const u=e.target.closest('[data-up]');
+  if(u){e.preventDefault();document.querySelector('[data-a="'+u.dataset.up+'"]').click()}
+});
+document.addEventListener('change',e=>{
+  const s=e.target.closest&&e.target.closest('select[data-l]');if(!s||view!=='creator'||S&&S.locked)return;
+  const k=s.dataset.l;if(C.audio[k]){URL.revokeObjectURL(C.audio[k].url);delete C.audio[k]}
+  if(s.value)C.libSel[k]=s.value;else delete C.libSel[k];musLabel(k);
+});
 
 function buildCreator(){
   C.built=true;
   let h='<div class="wide top"><span class="lens"></span><h1>POOL KEEPER</h1><div class="mut" id="cst"></div></div><section class="card wide"><div class="row" style="justify-content:flex-start"><div class="f"><label>Creator key</label><input id="ck" type="password" placeholder="Creator key"></div><button id="fa">Find pictures for all</button></div>'+
-   '<p class="mut">Type each Pokémon’s name. Pictures are looked up automatically: click the one you want (the first is pre-selected). You can also upload your own. For each Pokémon you can also add theme music from an audio file you own (optional, up to 8 MB; without one the standard battle music plays). Pictures and music are kept on this page until you submit, so don’t refresh before locking. The server keeps the list secret and only shows a Pokémon when it’s revealed.</p></section>';
+   '<p class="mut">Type each Pokémon’s name. Pictures are looked up automatically: click the one you want (the first is pre-selected). You can also upload your own. Theme music: if a Pokémon already has a theme in the site’s music library, it is detected automatically and you don’t need to upload anything. Otherwise you can pick another library track or add a file you own (optional, up to 8 MB). Without any theme the stage or standard battle music plays. Pictures and music are kept on this page until you submit, so don’t refresh before locking. The server keeps the list secret and only shows a Pokémon when it’s revealed.</p></section>';
   for(let s=1;s<=3;s++){h+='<section class="card"><h2>Stage '+s+' · '+STG[s]+'</h2><div class="cg">';
     for(let i=0;i<10;i++){const k='s'+s+'_'+i;h+='<div class="cs"><span class="mut">'+(i+1)+'</span><input data-n="'+k+'" maxlength="30" placeholder="Pokémon name"><span style="display:flex;gap:6px;align-items:center"><span id="p'+k+'"></span><button data-i="'+k+'">Upload</button><input type="file" accept="image/*" data-f="'+k+'" hidden></span><div class="cand" id="c'+k+'"></div><div class="cand mus"><button data-m="'+k+'">🎵 Add theme music</button><input type="file" accept="audio/*,.mp3,.ogg,.wav,.m4a" data-a="'+k+'" hidden><span id="mt'+k+'"></span></div></div>'}
     h+='</div></section>'}
   h+='<section class="card wide"><div class="row"><button class="p" id="lk">Submit &amp; lock list</button></div></section>';
   $('app').innerHTML=h;$('ck').value=localStorage.getItem('creatorKey')||'';
   for(let s=1;s<=3;s++)for(let i=0;i<10;i++)musLabel('s'+s+'_'+i);
-  document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>document.querySelector('[data-a="'+b.dataset.m+'"]').click());
+  document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>addTheme(b.dataset.m));
   document.querySelectorAll('[data-a]').forEach(f=>f.onchange=()=>{const file=f.files[0];f.value='';if(!file)return;const k=f.dataset.a;
     if(!(file.type.startsWith('audio/')||/\.(mp3|ogg|wav|m4a)$/i.test(file.name)))return toast('Please choose an mp3, ogg, wav or m4a file.');
     if(file.size>AMAX)return toast('That file is over 8 MB. Use a shorter or smaller version.');
-    if(C.audio[k])URL.revokeObjectURL(C.audio[k].url);C.audio[k]={file,url:URL.createObjectURL(file),token:''};musLabel(k);toast('Theme added ✓')});
+    if(C.audio[k])URL.revokeObjectURL(C.audio[k].url);delete C.libSel[k];C.audio[k]={file,url:URL.createObjectURL(file),token:''};musLabel(k);toast('Theme added ✓')});
   for(const k in C.slots){const n=document.querySelector('[data-n="'+k+'"]');if(n)n.value=C.slots[k].name||'';thumb(k)}
   document.querySelectorAll('[data-n]').forEach(e=>e.oninput=()=>{const k=e.dataset.n;
     const changed=(C.slots[k]&&C.slots[k].name)!==e.value.trim();
-    setSlot(k,changed?{name:e.value.trim(),imageUrl:'',image:''}:{name:e.value.trim()});
+    setSlot(k,changed?{name:e.value.trim(),imageUrl:'',image:''}:{name:e.value.trim()});musLabel(k);
     clearTimeout(C.timers[k]);if(changed)C.timers[k]=setTimeout(()=>find(k),700)});
   document.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>document.querySelector('[data-f="'+b.dataset.i+'"]').click());
   document.querySelectorAll('[data-f]').forEach(f=>f.onchange=async()=>{const file=f.files[0];if(!file)return;try{setSlot(f.dataset.f,{image:await shrink(file),imageUrl:''})}catch(e){toast('Couldn’t read that image.')}});
@@ -289,7 +317,7 @@ function buildCreator(){
         const j=await r.json().catch(()=>({}));if(!r.ok){toast((j.error||'Music upload failed')+' ('+((C.slots[k]||{}).name||k)+')');return reset()}
         a.token=j.token+'.'+j.ext}catch(e){toast('Music upload failed. Check your connection.');return reset()}}
     $('lk').textContent='Uploading…';
-    const items=Object.entries(C.slots).map(([k,s])=>({stage:s.stage,name:s.name,image:s.image||'',imageUrl:s.imageUrl||'',theme:(C.audio[k]&&C.audio[k].token)||''}));
+    const items=Object.entries(C.slots).map(([k,s])=>({stage:s.stage,name:s.name,image:s.image||'',imageUrl:s.imageUrl||'',theme:(C.audio[k]&&C.audio[k].token)||'',lib:(!C.audio[k]&&C.libSel[k])||''}));
     const res=await fetch('/api/pool',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,items})});
     const j=await res.json().catch(()=>({}));
     if(res.ok){localStorage.removeItem('draft');toast('List locked ✓')}else{toast(j.error||'Upload failed.');$('lk').disabled=false;$('lk').textContent='Submit & lock list'}
@@ -298,7 +326,7 @@ function buildCreator(){
 function creatorStatus(){
   if(!C.built)buildCreator();
   const lk=S&&S.locked;$('cst').textContent=lk?'Locked ✓ · you can close this page':cnt()+'/30 Pokémon named';
-  document.querySelectorAll('[data-n],[data-i],[data-m],#lk,#fa,.cd').forEach(x=>x.disabled=!!lk);
+  document.querySelectorAll('[data-n],[data-i],[data-m],select[data-l],#lk,#fa,.cd').forEach(x=>x.disabled=!!lk);
 }
 
 
@@ -326,7 +354,7 @@ function pkSet(id){
 }
 
 /* ---------- sound (original chiptune, synthesized in the browser) ---------- */
-const AU={ctx:null,on:localStorage.getItem('snd')!=='0',vol:+(localStorage.getItem('vol')||.5),track:null,step:0,next:0,want:['route','','',0],cur:null,stg:[],themeBad:new Set(),files:[],mons:[],el:null};
+const AU={ctx:null,on:localStorage.getItem('snd')!=='0',vol:+(localStorage.getItem('vol')||.5),track:null,step:0,next:0,want:['route','','',0],curId:'',bad:new Set(),blocked:false,stg:[],files:[],mons:[],el:null};
 const mf=m=>440*Math.pow(2,(m-69)/12);
 const bars=(...b)=>b.flat();
 const TRACKS={
@@ -350,35 +378,53 @@ const SFX={bid:[[88,.06],[93,.09]],tick:[[84,.05]],reveal:[[72,.07],[76,.07],[79
 function sfx(n){if(!AU.ctx||!AU.on)return;let t=AU.ctx.currentTime+.02;for(const[m,d]of SFX[n]){if(m){tone(mf(m),t,d*1.1,'square',.09);tone(mf(m-12),t,d*1.1,'triangle',.1)}t+=d}}
 const GENW=new Set(['battle','theme','music','legendary','wild']);
 const toks=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’'.]/g,'').split(/[^a-z0-9]+/).filter(Boolean);
-function monMatch(name){   // files in music/pokemon/ named after the Pokémon; "a+b.mp3" matches either a or b
-  const mt=new Set(toks(name));let best=[],bs=0;
-  for(const f of AU.mons){for(const alt of f.replace(/\.[^.]+$/,'').split('+')){
-    const t=toks(alt).filter(x=>!GENW.has(x));
-    if(t.length&&t.every(x=>mt.has(x))){const sc=t.length*2+(f.includes('+')?0:1);if(sc>bs){bs=sc;best=[f]}else if(sc===bs&&!best.includes(f))best.push(f)}}}
-  return best.length?best[Math.floor(Math.random()*best.length)]:null;
+function monMatch(name){   // files in music/pokemon/ named after the Pokémon; "a+b.mp3" matches either; "x and y" covers X/Y forms
+  const mt=new Set(toks(name));
+  const find=loose=>{let best=[],bs=0;
+    for(const f of AU.mons){for(const alt of f.replace(/\.[^.]+$/,'').split('+')){
+      let t=toks(alt).filter(x=>!GENW.has(x));
+      if(loose)t=t.filter(x=>x!=='and'&&!/^[xyz]$/.test(x));
+      if(t.length&&t.every(x=>mt.has(x))){const sc=t.length*2+(f.includes('+')?0:1);if(sc>bs){bs=sc;best=[f]}else if(sc===bs&&!best.includes(f))best.push(f)}}}
+    return best.length?best.sort()[0]:null};
+  return find(false)||find(true);
 }
 const STAGE_RE=[0,/legendar|stage[-_ ]?1/i,/mega|stage[-_ ]?2/i,/uber|stage[-_ ]?3/i];
-function playFile(mode,name,stage){
-  let url=null;
-  if(mode==='battle'&&name){const m=monMatch(name);if(m)url='/music/pokemon/'+encodeURIComponent(m)}
-  if(!url&&mode==='battle'&&stage){const l=AU.stg.filter(f=>STAGE_RE[stage].test(f));if(l.length)url='/music/stage/'+encodeURIComponent(l[Math.floor(Math.random()*l.length)])}
-  if(!url){
-    const sp=AU.files.filter(f=>new RegExp(mode==='battle'?'battle':'lobby|route','i').test(f)),gen=AU.files.filter(f=>!/battle|lobby|route/i.test(f));
-    const list=sp.length?sp:gen;if(!list.length)return false;
-    url='/music/'+encodeURIComponent(list[Math.floor(Math.random()*list.length)]);
+const enc=f=>encodeURIComponent(f),rnd1=a=>a[Math.floor(Math.random()*a.length)];
+const isBattle=f=>/battle/i.test(f),isLobby=f=>/lobby|route/i.test(f);
+const poolFor=mode=>{const sp=AU.files.filter(mode==='battle'?isBattle:isLobby);return sp.length?sp:AU.files.filter(f=>!isBattle(f)&&!isLobby(f))};
+// Which source should play? Returns an id; the music only restarts when this id changes.
+function srcId(mode,name,theme,stage,lib){
+  const c=[];
+  if(mode==='battle'){
+    if(theme)c.push('t:'+theme);
+    if(lib&&AU.mons.includes(lib))c.push('l:'+lib);
+    const m=name&&monMatch(name);if(m)c.push('m:'+m);
+    if(stage&&AU.stg.some(f=>STAGE_RE[stage].test(f)))c.push('s:'+stage);
   }
-  if(!AU.el)AU.el=new Audio();
-  AU.el.loop=false;AU.el.onerror=null;AU.el.volume=AU.vol;AU.el.onended=()=>playFile(AU.curMode,AU.curName,AU.curStage);AU.el.src=url;AU.el.play().catch(()=>{});return true;
+  if(poolFor(mode).length)c.push('b:'+mode);
+  c.push('synth:'+mode);
+  return c.find(x=>!AU.bad.has(x));
 }
-
-function setBg(mode,name,theme,stage){
-  AU.want=[mode,name||'',theme||'',stage||0];const key=mode+'|'+(mode==='battle'?(name||'')+'|'+(theme||'')+'|'+(stage||0):'');
-  if(!AU.ctx||!AU.on||AU.cur===key)return;AU.cur=key;AU.curMode=mode;AU.curName=name||'';AU.curStage=stage||0;
-  if(AU.el)AU.el.pause();AU.track=null;
-  if(mode==='battle'&&theme&&!AU.themeBad.has(theme)){   // the pool keeper's theme for this Pokémon
-    if(!AU.el)AU.el=new Audio();const el=AU.el;el.loop=true;el.volume=AU.vol;el.onended=null;
-    el.onerror=()=>{AU.themeBad.add(theme);AU.cur=null;setBg(...AU.want)};el.src='/theme/'+theme;el.play().catch(()=>{});return}
-  if(!playFile(mode,name,stage)){AU.track=TRACKS[mode];AU.step=0;AU.next=AU.ctx.currentTime+.08}
+function startSrc(id){
+  AU.curId=id;AU.track=null;if(AU.el){AU.el.pause();AU.el.onended=null;AU.el.onerror=null}
+  const k=id.split(':')[0],v=id.slice(k.length+1);
+  if(k==='synth'){AU.track=TRACKS[v];AU.step=0;AU.next=AU.ctx.currentTime+.08;return}
+  if(!AU.el)AU.el=new Audio();
+  const el=AU.el;el.volume=AU.vol;el.loop=false;
+  let url;
+  if(k==='t'){url='/theme/'+v;el.loop=true}
+  else if(k==='m'||k==='l'){url='/music/pokemon/'+enc(v);el.loop=true}
+  else if(k==='s'){url='/music/stage/'+enc(rnd1(AU.stg.filter(f=>STAGE_RE[+v].test(f))));el.onended=()=>startSrc(id)}
+  else{url='/music/'+enc(rnd1(poolFor(v)));el.onended=()=>startSrc(id)}
+  el.onerror=()=>{AU.bad.add(id);toast('Couldn’t load that music file; using the next option.');AU.curId='';setBg(...AU.want)};
+  el.src=url;AU.nowUrl=decodeURIComponent(url);$('mb').title='Now playing: '+AU.nowUrl;
+  const p=el.play();if(p&&p.catch)p.catch(e=>{if(e&&e.name==='NotAllowedError'){AU.blocked=true;AU.curId='';toast('Click anywhere on the page to enable sound.')}});
+}
+function setBg(mode,name,theme,stage,lib){
+  AU.want=[mode,name||'',theme||'',stage||0,lib||''];
+  if(!AU.ctx||!AU.on)return;
+  const id=srcId(mode,name,theme,stage,lib);if(id===AU.curId)return;
+  startSrc(id);
 }
 function audioSync(){
   if(!S)return;const a=S.auction,r=S.room,key=a?a.seq+':'+a.state:'';
@@ -386,15 +432,22 @@ function audioSync(){
   AU.key=key;
   const hv=S.high?S.high.amount:0;if(AU.hv!==undefined&&hv>AU.hv&&a&&a.state==='live')sfx('bid');AU.hv=hv;
   if(r.status==='done'&&!AU.fan){AU.fan=1;sfx('fanfare')}if(r.status!=='done')AU.fan=0;
-  const lv=r.status==='live'&&a&&a.state==='live';setBg(lv?'battle':'route',lv?a.name:'',lv?a.theme:'',lv?a.stage:0);
+  const on=r.status==='live',lv=on&&a&&a.state==='live';   // battle music runs for the whole draft once a stage has started
+  setBg(on?'battle':'route',lv?a.name:'',lv?a.theme:'',on?r.stage:0,lv?a.lib:'');
 }
 document.body.insertAdjacentHTML('beforeend','<div id="mus"><button id="mb" title="Sound on/off"></button><input id="mv" type="range" min="0" max="1" step="0.05" title="Volume"></div>');
 const mbIcon=()=>{$('mb').textContent=AU.on?'🔊':'🔇'};mbIcon();$('mv').value=AU.vol;
 $('mb').onclick=()=>{ctxInit();if(AU.ctx&&AU.ctx.resume)AU.ctx.resume();AU.on=!AU.on;localStorage.setItem('snd',AU.on?'1':'0');mbIcon();
-  if(!AU.on){AU.track=null;AU.cur=null;if(AU.el)AU.el.pause()}else{AU.cur=null;setBg(...AU.want)}};
+  if(!AU.on){AU.track=null;AU.curId='';if(AU.el)AU.el.pause()}else{AU.curId='';setBg(...AU.want)}};
 $('mv').oninput=e=>{AU.vol=+e.target.value;localStorage.setItem('vol',AU.vol);if(AU.master)AU.master.gain.value=AU.vol*.5;if(AU.el)AU.el.volume=AU.vol};
-addEventListener('pointerdown',()=>{if(AU.ctx)return;ctxInit();if(AU.ctx&&AU.ctx.resume)AU.ctx.resume();if(AU.on)setBg(...AU.want)},{once:false});
-fetch('/api/music').then(r=>r.json()).then(j=>{AU.files=j.files||[];AU.mons=j.pokemon||[];AU.stg=j.stage||[]}).catch(()=>{});
+addEventListener('pointerdown',()=>{
+  if(!AU.ctx){ctxInit();   // first click: unlock audio playback for this page (needed by Safari/Chrome)
+    if(!AU.el){AU.el=new Audio();AU.el.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';AU.el.play().catch(()=>{})}}
+  if(AU.ctx&&AU.ctx.resume)AU.ctx.resume();
+  if(AU.on&&(AU.blocked||!AU.curId)){AU.blocked=false;AU.curId='';setBg(...AU.want)}
+},{once:false});
+fetch('/api/music').then(r=>r.json()).then(j=>{AU.files=j.files||[];AU.mons=j.pokemon||[];AU.stg=j.stage||[];if(AU.ctx&&AU.on){AU.curId='';setBg(...AU.want)}
+  if(view==='creator'&&C.built)for(let s=1;s<=3;s++)for(let i=0;i<10;i++)musLabel('s'+s+'_'+i)}).catch(()=>{});
 
 if(view==='creator')buildCreator();
 connect();

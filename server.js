@@ -63,7 +63,7 @@ function reveal() {
   if (!pool.length) return 'The pool for this stage is empty.';
   const it = pick(pool); it.used = true;
   const seq = (G.auction ? G.auction.seq : 0) + 1;
-  G.auction = { seq, stage: r.stage, state: 'live', name: it.name, img: it.image ? it.id : null, theme: it.theme ? it.id : null, endsAt: Date.now() + r.timer * 1000, bb: r.bb };
+  G.auction = { seq, stage: r.stage, state: 'live', name: it.name, img: it.image ? it.id : null, theme: it.theme ? it.id : null, lib: it.lib || null, endsAt: Date.now() + r.timer * 1000, bb: r.bb };
   if (e.length === 1) settle(e[0].id);
 }
 
@@ -215,10 +215,10 @@ function sniff(b) {                    // identify the audio type from the file'
 /* ---------- http ---------- */
 const app = express();
 app.use(express.json({ limit: '15mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { setHeaders: (res, p) => { if (/\.(mpe|mpga)$/i.test(p)) res.type('audio/mpeg'); } }));
 app.get('/healthz', (_, res) => res.send('ok'));
 const MUSIC = path.join(__dirname, 'public', 'music');
-const audioFiles = d => { try { return fs.readdirSync(d).filter(x => /\.(mp3|ogg|wav|m4a)$/i.test(x)); } catch { return []; } };
+const audioFiles = d => { try { return fs.readdirSync(d).filter(x => /\.(mp3|ogg|oga|wav|m4a|aac|flac|opus|mpe|mpga)$/i.test(x)); } catch { return []; } };
 app.get('/api/music', (_, res) =>
   res.json({ files: audioFiles(MUSIC), pokemon: audioFiles(path.join(MUSIC, 'pokemon')), stage: audioFiles(path.join(MUSIC, 'stage')) }));
 app.post('/api/theme', express.raw({ type: () => true, limit: '9mb' }), (req, res) => {
@@ -267,7 +267,7 @@ app.post('/api/pool', async (req, res) => {
     for (const i of g) {
       const name = String(i.name || '').trim().slice(0, 30);
       if (!name) return res.status(400).json({ error: 'Every Pokémon needs a name.' });
-      out.push({ id: crypto.randomUUID(), stage: s, name, image: '', theme: THEME_FILE.test(String(i.theme)) && fs.existsSync(path.join(THEMES, i.theme)) ? i.theme : '', src: i, used: false });
+      out.push({ id: crypto.randomUUID(), stage: s, name, image: '', lib: audioFiles(path.join(MUSIC, 'pokemon')).includes(i.lib) ? i.lib : '', theme: THEME_FILE.test(String(i.theme)) && fs.existsSync(path.join(THEMES, i.theme)) ? i.theme : '', src: i, used: false });
     }
   }
   try {
@@ -289,7 +289,7 @@ function view(c) {
   const a = G.auction, L = lot(), r = G.room, balMap = {};
   G.players.forEach(p => balMap[p.id] = bal(p.id));
   return { now: Date.now(), room: r, players: G.players, bal: balMap, eligible: elig(r.stage).map(p => p.id),
-    auction: a && { seq: a.seq, stage: a.stage, state: a.state, name: a.name, img: a.img, theme: a.state === 'live' ? a.theme : null, bb: a.bb,
+    auction: a && { seq: a.seq, stage: a.stage, state: a.state, name: a.name, img: a.img, theme: a.state === 'live' ? a.theme : null, lib: a.state === 'live' ? a.lib : null, bb: a.bb,
       endsAt: L ? L.end : a.endsAt, winner: a.winner, price: a.price, byBlind: a.byBlind },
     high: L && L.high ? { bidder: L.high.bidder, amount: L.high.amount, blind: !!L.high.blind } : null,
     bids: a ? G.bids.filter(b => b.seq === a.seq).slice(-12).reverse() : [],
