@@ -63,7 +63,7 @@ function reveal() {
   if (!pool.length) return 'The pool for this stage is empty.';
   const it = pick(pool); it.used = true;
   const seq = (G.auction ? G.auction.seq : 0) + 1;
-  G.auction = { seq, stage: r.stage, state: 'live', name: it.name, img: it.image ? it.id : null, endsAt: Date.now() + r.timer * 1000, bb: r.bb };
+  G.auction = { seq, stage: r.stage, state: 'live', name: it.name, img: it.image ? it.id : null, theme: it.theme ? it.id : null, endsAt: Date.now() + r.timer * 1000, bb: r.bb };
   if (e.length === 1) settle(e[0].id);
 }
 
@@ -137,7 +137,10 @@ function host(c, m) {
     case 'endtest':
       G.results = []; G.bids = []; G.auction = null; r.status = 'lobby'; r.stage = 1; r.bb = null;
       r.test = false; G.players = G.players.filter(p => !p.bot); G.tpool = null; return;
-    case 'wipepool': if (r.status !== 'lobby') return 'Reset the draft first.'; G.pool = null; return;
+    case 'wipepool':
+      if (r.status !== 'lobby') return 'Reset the draft first.';
+      if (G.pool) G.pool.items.forEach(i => { if (i.theme) fs.unlink(path.join(THEMES, i.theme), () => {}); });
+      G.pool = null; return;
   }
   return 'Unknown action.';
 }
@@ -195,6 +198,20 @@ async function downloadImage(u) {
   return `data:${mime};base64,${buf.toString('base64')}`;
 }
 
+/* ---------- theme music (uploaded by the pool creator) ---------- */
+const THEMES = path.join(path.dirname(DATA), 'themes');
+try { fs.mkdirSync(THEMES, { recursive: true }); } catch {}
+const THEME_FILE = /^[0-9a-f-]{36}\.(mp3|ogg|wav|m4a)$/;
+function sniff(b) {                    // identify the audio type from the file's first bytes
+  if (!b || b.length < 12) return '';
+  const t = n => b.subarray(0, n).toString('latin1');
+  if (t(3) === 'ID3' || (b[0] === 0xFF && (b[1] & 0xE0) === 0xE0)) return 'mp3';
+  if (t(4) === 'OggS') return 'ogg';
+  if (t(4) === 'RIFF' && b.subarray(8, 12).toString('latin1') === 'WAVE') return 'wav';
+  if (b.subarray(4, 8).toString('latin1') === 'ftyp') return 'm4a';
+  return '';
+}
+
 /* ---------- http ---------- */
 const app = express();
 app.use(express.json({ limit: '15mb' }));
@@ -203,7 +220,22 @@ app.get('/healthz', (_, res) => res.send('ok'));
 const MUSIC = path.join(__dirname, 'public', 'music');
 const audioFiles = d => { try { return fs.readdirSync(d).filter(x => /\.(mp3|ogg|wav|m4a)$/i.test(x)); } catch { return []; } };
 app.get('/api/music', (_, res) =>
-  res.json({ files: audioFiles(MUSIC), pokemon: audioFiles(path.join(MUSIC, 'pokemon')) }));
+  res.json({ files: audioFiles(MUSIC), pokemon: audioFiles(path.join(MUSIC, 'pokemon')), stage: audioFiles(path.join(MUSIC, 'stage')) }));
+app.post('/api/theme', express.raw({ type: () => true, limit: '9mb' }), (req, res) => {
+  if (!same(req.get('x-creator-key') || '', CREATOR_KEY)) return res.status(403).json({ error: 'Wrong creator key.' });
+  if (G.pool) return res.status(409).json({ error: 'The list is already locked.' });
+  const ext = sniff(req.body);
+  if (!ext) return res.status(400).json({ error: 'Unsupported audio file. Use mp3, ogg, wav or m4a.' });
+  const token = crypto.randomUUID();
+  fs.writeFile(path.join(THEMES, token + '.' + ext), req.body, err => err ? res.status(500).json({ error: 'Couldn’t save the file.' }) : res.json({ token, ext }));
+});
+app.get('/theme/:id', (req, res) => {       // only the Pokémon currently being auctioned
+  const id = req.params.id;
+  const it = G.auction && G.auction.theme === id && G.pool && G.pool.items.find(i => i.id === id);
+  const f = it && it.theme && path.join(THEMES, it.theme);
+  if (!f || !fs.existsSync(f)) return res.sendStatus(404);
+  res.set('Cache-Control', 'private, max-age=3600'); res.sendFile(f);
+});
 app.get('/api/search', async (req, res) => {
   const k = req.get('x-creator-key') || '';
   if (!same(k, CREATOR_KEY)) return res.status(403).json({ error: 'Wrong creator key.' });
@@ -235,7 +267,7 @@ app.post('/api/pool', async (req, res) => {
     for (const i of g) {
       const name = String(i.name || '').trim().slice(0, 30);
       if (!name) return res.status(400).json({ error: 'Every Pokémon needs a name.' });
-      out.push({ id: crypto.randomUUID(), stage: s, name, image: '', src: i, used: false });
+      out.push({ id: crypto.randomUUID(), stage: s, name, image: '', theme: THEME_FILE.test(String(i.theme)) && fs.existsSync(path.join(THEMES, i.theme)) ? i.theme : '', src: i, used: false });
     }
   }
   try {
@@ -257,7 +289,7 @@ function view(c) {
   const a = G.auction, L = lot(), r = G.room, balMap = {};
   G.players.forEach(p => balMap[p.id] = bal(p.id));
   return { now: Date.now(), room: r, players: G.players, bal: balMap, eligible: elig(r.stage).map(p => p.id),
-    auction: a && { seq: a.seq, stage: a.stage, state: a.state, name: a.name, img: a.img, bb: a.bb,
+    auction: a && { seq: a.seq, stage: a.stage, state: a.state, name: a.name, img: a.img, theme: a.state === 'live' ? a.theme : null, bb: a.bb,
       endsAt: L ? L.end : a.endsAt, winner: a.winner, price: a.price, byBlind: a.byBlind },
     high: L && L.high ? { bidder: L.high.bidder, amount: L.high.amount, blind: !!L.high.blind } : null,
     bids: a ? G.bids.filter(b => b.seq === a.seq).slice(-12).reverse() : [],

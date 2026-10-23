@@ -17,5 +17,10 @@ POKÉMON THEMES (public/music/pokemon/)
    mega-charizard-y.mp3     plays for Mega Charizard Y; charizard.mp3 would cover any Charizard form
    Names ignore capitals and punctuation ("mr-mime.mp3" = Mr. Mime). A dedicated file beats a shared one.
 
-ORDER during a live auction:  Pokémon file > battle file > built-in chiptune
-Outside auctions:             lobby file > built-in chiptune
+STAGE MUSIC (public/music/stage/)
+   Put files here with "legendary", "mega" or "uber" in the name. They play during every auction in that stage.
+   (See the README.txt in that folder.)
+
+ORDER during a live auction:
+   pool creator's uploaded theme > file in pokemon/ > stage file > battle file > built-in chiptune
+Outside auctions (lobby, between lots):  lobby file > built-in chiptune

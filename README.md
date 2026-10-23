@@ -40,3 +40,14 @@ Files in `public/music/pokemon/` named after a Pokémon (e.g. `dialga.mp3`, `dia
 See the README.txt in that folder.
 
 
+
+
+## Theme music (added by the pool creator)
+On the creator page, each Pokémon has an "🎵 Add theme music" button: choose an audio file you own (mp3, ogg, wav, m4a, up to 8 MB).
+You can preview it on the page. It is uploaded when the list is locked, kept secret, and only plays when that Pokémon is revealed.
+Order during a live auction: creator's theme > file in `public/music/pokemon/` > battle track > built-in chiptune.
+Uploaded themes are stored next to the data file (`themes/`), so on Render's free plan they disappear on restart like the rest of the draft.
+
+## Stage music
+Files in `public/music/stage/` with `legendary`, `mega` or `uber` in the name play during that stage's live auctions.
+Order: creator's uploaded theme > `pokemon/` file > stage file > `battle` file > built-in chiptune.
