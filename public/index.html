@@ -17,7 +17,7 @@ main{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:14px 14p
 .card{background:var(--card);border:3px solid var(--edge);border-radius:18px;padding:16px;box-shadow:0 5px 0 rgba(0,0,0,.22)}
 h1{margin:0;font:400 .85rem/1.5 var(--px);letter-spacing:.03em;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.35);flex:1}
 h2{font:400 .62rem/1.4 var(--px);margin:0 0 12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
-.mut{color:var(--mut)}.ok{color:var(--ok)}.bad{color:var(--bad)}
+.mut{color:var(--mut)}.warn{color:var(--gold)}.ok{color:var(--ok)}.bad{color:var(--bad)}
 .top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:linear-gradient(#f43a3a,#c80f0f 70%);border:3px solid #111;border-radius:18px;padding:10px 16px;box-shadow:0 5px 0 #7a0a0a}
 .lens{width:40px;height:40px;border-radius:50%;flex:none;border:4px solid #fff;background:radial-gradient(circle at 35% 30%,#d8f6ff,#35b6ff 45%,#1262c9);box-shadow:0 0 0 3px #111,0 0 18px #5ccbff;animation:blink 2.6s infinite}
 @keyframes blink{0%,86%,100%{filter:none}92%{filter:brightness(1.6)}}
@@ -97,9 +97,10 @@ button.av{border-bottom-width:5px;cursor:pointer}
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MINP=[0,250,100,100],reserve=st=>MINP.slice(st+1).reduce((a,b)=>a+b,0);
 const STG=['','Legendary','Mega','Uber'],ST3=['','L','M','U'];
 const view=location.hash==='#creator'?'creator':'main';
-let S=null,ws,off=0,resetArmed=false,wipeArmed=false,botAs=null;
+let S=null,ws,off=0,resetArmed=false,wipeArmed=false,botAs=null,hcSel=null,revealNames=false;
 let token=localStorage.getItem('tk');if(!token){token=crypto.randomUUID()+crypto.randomUUID();localStorage.setItem('tk',token)}
 const now=()=>Date.now()+off;
 const toast=t=>{const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2800)};
@@ -131,33 +132,36 @@ function renderMain(){
   const r=S.room,a=S.auction,y=S.you,live=r.status==='live',done=r.status==='done';
   document.body.className=r.status==='lobby'?'lobby':'s'+r.stage;
   const pips=[1,2,3].map(s=>{const d=done||(live&&r.stage>s);return'<span class="pip '+(live&&r.stage===s?'on':'')+(d?' done':'')+'">'+(d?'✓ ':'')+STG[s]+'</span>'}).join('');
-  const bbTxt=r.bb?'<div class="mut">Big Blind: <span class="bb">BB</span> <b>'+nmv(r.bb)+'</b></div>':'';
+  const sx=S.stats,statsTxt=live&&sx?'<div class="mut" style="font-size:.85rem">Pokémon left: <b>'+sx.left+'</b> · trainers still needing one: <b>'+sx.need+'</b> · removals left: <b>'+sx.spare+'</b> · minimum price: <b>'+MINP[r.stage]+'</b></div>':'';
   let arena='';
   if(r.status==='lobby'){
     const n=S.players.length;
-    arena='<div class="ball"><i></i></div><div class="name">Mystery Auction</div><div class="mut">3 stages · 1,000 coins · one Pokémon per stage</div>'+
+    arena='<div class="ball"><i></i></div><div class="name">Mystery Auction</div><div class="mut">3 stages · 1,000 coins · 15 Pokémon per stage · one for each trainer</div><div class="mut" style="font-size:.85rem">Minimum prices: Legendary 250 · Mega 100 · Uber 100</div>'+
      '<div class="chk"><div>'+(n===10?'✅':'⬜')+' Trainers joined: <b>'+n+'/10</b></div><div>'+(r.test?'🧪 Test run: dummy Pokémon will be used':(S.locked?'✅':'⬜')+' Pokémon list locked in')+'</div></div>'+
-     (y.joined?'<div class="mut">You’re in as <b>'+nm(y.id)+'</b>.</div>':n>=10?'<div class="bad">Room is full.</div>':'<div class="row"><button class="av" id="jav" title="Choose your trainer" data-pick="1" style="width:64px;height:64px">'+(myAv?'<img src="'+TRB+avPath(myAv)+'" data-p="'+esc(myAv)+'" onerror="avFb(this)" alt="">':'?')+'</button><input id="jn" maxlength="20" placeholder="Trainer name"><button class="p" id="jb">Join</button></div><div class="mut">Tap the box to pick your trainer sprite.</div>');
+     (y.joined?'<div class="mut">You’re in as <b>'+nm(y.id)+'</b>. Everyone else sees you under this name only.</div>':n>=10?'<div class="bad">Room is full.</div>':'<div class="row"><button class="av" id="jav" title="Choose your trainer" data-pick="1" style="width:64px;height:64px">'+(myAv?'<img src="'+TRB+avPath(myAv)+'" data-p="'+esc(myAv)+'" onerror="avFb(this)" alt="">':'?')+'</button><input id="jn" maxlength="20" placeholder="Your name (private, optional)"><button class="p" id="jb">Join</button></div><div class="mut">Tap the box to pick your trainer sprite. You’ll get an anonymous trainer name.</div>');
   }else if(done){
     arena='<div class="name">Draft complete 🏆</div><div class="mut">Check every trainer’s team on the right.</div>';
   }else if(!a||(a.state==='sold'&&a.stage!==r.stage)){
-    arena='<div class="mut">STAGE '+r.stage+' · '+STG[r.stage].toUpperCase()+'</div><div class="ball"><i></i></div><div class="name">Next reveal…</div><div class="mut">Waiting for the host.</div>'+bbTxt;
+    arena='<div class="mut">STAGE '+r.stage+' · '+STG[r.stage].toUpperCase()+'</div><div class="ball"><i></i></div><div class="name">Next reveal…</div><div class="mut">Waiting for the host.</div>'+statsTxt;
   }else if(a.state==='live'){
-    const h=S.high,me=y.joined,w=won(y.id,a.stage),min=h?h.amount+1:1,mx=me?S.bal[y.id]-(3-r.stage):0;
+    const h=S.high,me=y.joined,w=won(y.id,a.stage),min=h?h.amount+1:MINP[a.stage],mx=me?S.bal[y.id]-reserve(a.stage):0,can=mx>=min;
     arena='<div class="mut">'+STG[a.stage].toUpperCase()+' · LIVE</div>'+pic(a.img,a.name,'mon')+'<div class="name">'+esc(a.name)+'</div>'+
-      '<div class="row" style="gap:24px"><div><div class="mut">'+(h?(h.blind?'Big Blind opening':'Highest bid'):'No bids yet')+'</div><div class="bid">'+(h?h.amount:0)+'</div><div class="mut">'+(h?'<b>'+nmv(h.bidder)+'</b>':'&nbsp;')+'</div></div>'+
-      '<div class="ring" id="rg"><svg width="96" height="96"><circle cx="48" cy="48" r="42" fill="none" stroke="var(--line)" stroke-width="7"/><circle id="rc" cx="48" cy="48" r="42" fill="none" stroke="var(--st)" stroke-width="7" stroke-linecap="round" stroke-dasharray="264"/></svg><b id="tm"></b></div></div>'+bbTxt+
-      (me&&!w?'<div class="mut">Your coins: <b>'+S.bal[y.id]+'</b> · max bid <b>'+mx+'</b></div><div class="row"><button class="p" data-b="'+min+'">Bid '+min+'</button><button data-b="'+(h?h.amount+50:50)+'">'+(h?'+50 → '+(h.amount+50):'Bid 50')+'</button><input id="cb" type="number" inputmode="numeric" placeholder="Custom" style="width:110px"><button id="cbb">Bid</button></div>':
+      '<div class="row" style="gap:24px"><div><div class="mut">'+(h?'Highest bid':'Minimum bid')+'</div><div class="bid">'+(h?h.amount:MINP[a.stage])+'</div><div class="mut">'+(h?'<b>'+nmv(h.bidder)+'</b>':'&nbsp;')+'</div></div>'+
+      '<div class="ring" id="rg"><svg width="96" height="96"><circle cx="48" cy="48" r="42" fill="none" stroke="var(--line)" stroke-width="7"/><circle id="rc" cx="48" cy="48" r="42" fill="none" stroke="var(--st)" stroke-width="7" stroke-linecap="round" stroke-dasharray="264"/></svg><b id="tm"></b></div></div>'+statsTxt+
+      (me&&!w?'<div class="mut">Your coins: <b>'+S.bal[y.id]+'</b> · max bid <b>'+Math.max(0,mx)+'</b>'+(can?'':' <span class="bad">(you can’t afford the minimum while keeping '+reserve(a.stage)+' for later stages)</span>')+'</div><div class="row"><button class="p" data-b="'+min+'"'+(can?'':' disabled')+'>Bid '+min+'</button><button data-b="'+((h?h.amount:MINP[a.stage])+50)+'"'+(mx>=(h?h.amount:MINP[a.stage])+50?'':' disabled')+'>'+(h?'+50 → ':'Bid ')+((h?h.amount:MINP[a.stage])+50)+'</button><input id="cb" type="number" inputmode="numeric" placeholder="Custom" style="width:110px"><button id="cbb">Bid</button></div>':
        me?'<div class="ok">You already own your '+STG[a.stage]+'.</div>':'<div class="mut">You’re spectating.</div>');
   }else{
-    arena='<div class="mut">SOLD</div>'+pic(a.img,a.name,'mon')+'<div class="name">'+esc(a.name)+'</div><div class="bid">'+a.price+'</div><div>to <b>'+nmv(a.winner)+'</b>'+(a.byBlind?' <span class="bb">BIG BLIND</span>':'')+'</div>'+bbTxt;
+    const oc=a.outcome||'sold';
+    arena=oc==='removed'?'<div class="mut">NO BIDS</div>'+pic(a.img,a.name,'mon')+'<div class="name">'+esc(a.name)+'</div><div class="bad">Removed from the pool</div>'+statsTxt
+      :oc==='back'?'<div class="mut">NO BIDS</div>'+pic(a.img,a.name,'mon')+'<div class="name">'+esc(a.name)+'</div><div class="warn">Sent to the back of the line</div><div class="mut" style="font-size:.85rem">No spare Pokémon are left, so someone has to take it.</div>'+statsTxt
+      :'<div class="mut">'+(oc==='forced'?'LAST PICK':'SOLD')+'</div>'+pic(a.img,a.name,'mon')+'<div class="name">'+esc(a.name)+'</div><div class="bid">'+a.price+'</div><div>to <b>'+nmv(a.winner)+'</b>'+(oc==='forced'?' <span class="bb">FORCED</span>':'')+'</div>'+statsTxt;
   }
   const keep=document.activeElement&&document.activeElement.id==='cb'?document.activeElement.value:null;
   const trainers=S.players.map(p=>{
     const slots=[1,2,3].map(s=>{const x=won(p.id,s);return'<i class="'+(x?'on':'')+'" title="'+(x?esc(x.name)+' · '+x.price:STG[s])+'">'+(x&&x.img?'<img src="/img/'+x.img+'" alt="">':x?esc(x.name[0]):ST3[s])+'</i>'}).join('');
-    return'<div class="tr">'+(p.id===y.id?avTag(p.av,'me',' role="button" data-pick="1" title="Change avatar" style="cursor:pointer"'):avTag(p.av,''))+'<div><span class="'+(p.id===y.id?'me':'')+'">'+esc(p.name)+(p.bot?' 🤖':'')+(p.id===y.id?' (you)':'')+'</span> '+(r.bb===p.id&&live?'<span class="bb">BB</span>':'')+
+    return'<div class="tr">'+(p.id===y.id?avTag(p.av,'me',' role="button" data-pick="1" title="Change avatar" style="cursor:pointer"'):avTag(p.av,''))+'<div><span class="'+(p.id===y.id?'me':'')+'">'+esc(p.name)+(p.bot?' 🤖':'')+(p.id===y.id?' (you)':'')+'</span> '+
      (y.isHost&&r.status==='lobby'?' <a href="#" data-k="'+p.id+'" class="mut">remove</a>':'')+'<div class="sl">'+slots+'</div><div class="hp"><b class="'+(S.bal[p.id]<200?'l':S.bal[p.id]<500?'m':'')+'" style="width:'+Math.max(0,S.bal[p.id]/10)+'%"></b></div></div><div style="text-align:right"><b class="hd" style="font-size:1.3rem">'+S.bal[p.id]+'</b><div class="mut">coins</div></div></div>'}).join('')||'<span class="mut">Nobody yet.</span>';
-  const hist=S.results.slice().sort((x,y)=>y.seq-x.seq).slice(0,25).map(x=>'<div class="lr">'+pic(x.img,x.name,'th')+'<div style="flex:1"><b>'+esc(x.name)+'</b> <span class="mut">'+STG[x.stage]+'</span><br><span class="mut">'+nmv(x.winner)+(x.byBlind?' · Big Blind':'')+'</span></div><b class="hd">'+x.price+'</b></div>').join('')||'<span class="mut">No sales yet.</span>';
+  const hist=S.results.slice().sort((x,y)=>y.seq-x.seq).slice(0,25).map(x=>'<div class="lr">'+pic(x.img,x.name,'th')+'<div style="flex:1"><b>'+esc(x.name)+'</b> <span class="mut">'+STG[x.stage]+'</span><br><span class="mut">'+(x.removed?'Removed · no bids':nmv(x.winner)+(x.forced?' · last pick':''))+'</span></div><b class="hd">'+(x.removed?'—':x.price)+'</b></div>').join('')||'<span class="mut">No sales yet.</span>';
   const open=document.querySelector('details#hl')&&document.querySelector('details#hl').open;
   const focusHost=$('hostp')&&$('hostp').contains(document.activeElement)&&/INPUT|SELECT/.test(document.activeElement.tagName);
   const hostHtml=focusHost?$('hostp').innerHTML:hostPanel();
@@ -179,7 +183,6 @@ function hostPanel(){
   let h='<h2>Host console</h2><div class="cg">';
   if(r.status==='lobby'){
     h+='<div class="f"><label>Auction timer (seconds)</label><select id="ht">'+[20,30,45,60].map(t=>'<option'+(r.timer===t?' selected':'')+'>'+t+'</option>').join('')+'</select></div>'+
-      '<div class="f"><label>Big Blind rule</label><select id="hm"><option value="A"'+(r.mode==='A'?' selected':'')+'>A · buys for 1 only if nobody bids</option><option value="B"'+(r.mode==='B'?' selected':'')+'>B · poker-style, opens at 1</option></select></div>'+
       '<button class="p" id="hgo"'+(S.players.length===10&&(S.locked||r.test)?'':' disabled')+'>Start Stage 1</button>'+
       (r.test?'<div class="mut">🧪 Test run: dummy Pokémon, nothing counts and the real pool stays untouched.</div><div class="row" style="justify-content:flex-start"><button id="hbots">Fill with dummy trainers</button><button id="hrm">Remove dummies</button><button id="hend">Exit test run</button></div>':'<button id="htest">🧪 Start a test run</button>');
   }else if(r.status==='live'){
@@ -188,11 +191,15 @@ function hostPanel(){
     if(sold&&ex===0&&r.stage===3)h+='<button class="p" id="hfin">Finish draft</button>';
     if(r.test){const bots=S.players.filter(p=>p.bot&&!won(p.id,r.stage));if(!bots.some(b=>b.id===botAs))botAs=bots[0]&&bots[0].id;
       h+='<div class="mut">🧪 Test run</div>';
-      if(a&&a.state==='live'&&bots.length){const mn=S.high?S.high.amount+1:1;
+      if(a&&a.state==='live'&&bots.length){const mn=S.high?S.high.amount+1:MINP[a.stage];
         h+='<div class="row" style="justify-content:flex-start"><div class="f"><label>Bid for a dummy</label><select id="bas">'+bots.map(b=>'<option value="'+b.id+'"'+(b.id===botAs?' selected':'')+'>'+esc(b.name)+'</option>').join('')+'</select></div><button id="hbb">Bid '+mn+'</button><button id="hb5">+50</button></div>'}
       h+='<label class="mut"><input type="checkbox" id="hbp"'+(r.botplay?' checked':'')+'> Dummies bid on their own</label><button id="hend">Exit test run</button>'}
     if(a&&a.state==='live')h+='<button class="p" id="hs"'+(now()>=a.endsAt?'':' disabled')+'>Settle auction</button><div class="mut">Enabled when the timer reaches zero.</div>';
   }
+  if(S.hostInfo&&S.players.length){const hi=S.hostInfo;if(!S.players.some(p=>p.id===hcSel))hcSel=S.players[0].id;
+    h+='<div class="f"><label>Edit coins (add or subtract)</label><select id="hc">'+S.players.map(p=>{const ad=hi.adj[p.id]||0;return'<option value="'+p.id+'"'+(p.id===hcSel?' selected':'')+'>'+esc(p.name+(revealNames?' — '+hi.names[p.id]:''))+' · '+S.bal[p.id]+' coins'+(ad?' ('+(ad>0?'+':'')+ad+' adj.)':'')+'</option>'}).join('')+'</select>'+
+      '<div class="row" style="justify-content:flex-start"><input id="hcn" type="number" inputmode="numeric" placeholder="Amount" style="width:110px"><button id="hca">Add</button><button id="hcs">Subtract</button></div>'+
+      '<label class="mut"><input type="checkbox" id="hcr"'+(revealNames?' checked':'')+'> Show real names here (spoils anonymity for you)</label></div>'}
   h+='<label class="mut"><input type="checkbox" id="ha"'+(r.auto?' checked':'')+'> Auto-settle when the timer ends</label>';
   h+='<div class="row" style="justify-content:flex-start"><button id="hrs">'+(resetArmed?'Click again to wipe the draft':'Reset draft')+'</button>'+
      (r.status==='lobby'&&S.locked?'<button id="hwp">'+(wipeArmed?'Click again to delete the pool':'Delete pool list')+'</button>':'')+'</div></div>';
@@ -201,12 +208,15 @@ function hostPanel(){
 function wireHost(){
   const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};
   on('hkb',()=>{localStorage.setItem('hostKey',$('hk').value.trim());send({t:'auth',key:$('hk').value.trim()})});
-  if($('ht')){$('ht').onchange=e=>H('config',{timer:+e.target.value});$('hm').onchange=e=>H('config',{mode:e.target.value})}
+  if($('ht'))$('ht').onchange=e=>H('config',{timer:+e.target.value});
+  if($('hc')){$('hc').onchange=e=>{hcSel=e.target.value};$('hcr').onchange=e=>{revealNames=e.target.checked;render()}
+    const co=sign=>()=>{const v=Math.abs(parseInt($('hcn').value,10));if(!v)return toast('Enter an amount first.');H('coins',{id:$('hc').value,delta:sign*v});$('hcn').value=''};
+    on('hca',co(1));on('hcs',co(-1))}
   if($('ha'))$('ha').onchange=e=>H('config',{auto:e.target.checked});
   on('hgo',()=>H('start'));on('htest',()=>H('test',{on:true}));on('hbots',()=>H('addbots'));on('hrm',()=>H('rmbots'));on('hend',()=>H('endtest'));
   if($('bas'))$('bas').onchange=e=>{botAs=e.target.value};
   if($('hbp'))$('hbp').onchange=e=>H('config',{botplay:e.target.checked});
-  const bb=mult=>()=>{const mn=S.high?S.high.amount+1:1;send({t:'bid',amount:mult?(S.high?S.high.amount:0)+50:mn,as:$('bas').value})};
+  const bb=mult=>()=>{const st=S.auction?S.auction.stage:S.room.stage,mn=S.high?S.high.amount+1:MINP[st];send({t:'bid',amount:mult?(S.high?S.high.amount:MINP[st])+50:mn,as:$('bas').value})};
   on('hbb',bb(false));on('hb5',bb(true));on('hr',()=>H('reveal'));on('hadv',()=>H('advance'));on('hfin',()=>H('finish'));on('hs',()=>H('settle'));
   on('hrs',()=>{if(!resetArmed){resetArmed=true;render();setTimeout(()=>{resetArmed=false;render()},4000);return}resetArmed=false;H('reset')});
   on('hwp',()=>{if(!wipeArmed){wipeArmed=true;render();setTimeout(()=>{wipeArmed=false;render()},4000);return}wipeArmed=false;H('wipepool')});
@@ -285,11 +295,11 @@ function buildCreator(){
   let h='<div class="wide top"><span class="lens"></span><h1>POOL KEEPER</h1><div class="mut" id="cst"></div></div><section class="card wide"><div class="row" style="justify-content:flex-start"><div class="f"><label>Creator key</label><input id="ck" type="password" placeholder="Creator key"></div><button id="fa">Find pictures for all</button></div>'+
    '<p class="mut">Type each Pokémon’s name. Pictures are looked up automatically: click the one you want (the first is pre-selected). You can also upload your own. Theme music: if a Pokémon already has a theme in the site’s music library, it is detected automatically and you don’t need to upload anything. Otherwise you can pick another library track or add a file you own (optional, up to 8 MB). Without any theme the stage or standard battle music plays. Pictures and music are kept on this page until you submit, so don’t refresh before locking. The server keeps the list secret and only shows a Pokémon when it’s revealed.</p></section>';
   for(let s=1;s<=3;s++){h+='<section class="card"><h2>Stage '+s+' · '+STG[s]+'</h2><div class="cg">';
-    for(let i=0;i<10;i++){const k='s'+s+'_'+i;h+='<div class="cs"><span class="mut">'+(i+1)+'</span><input data-n="'+k+'" maxlength="30" placeholder="Pokémon name"><span style="display:flex;gap:6px;align-items:center"><span id="p'+k+'"></span><button data-i="'+k+'">Upload</button><input type="file" accept="image/*" data-f="'+k+'" hidden></span><div class="cand" id="c'+k+'"></div><div class="cand mus"><button data-m="'+k+'">🎵 Add theme music</button><input type="file" accept="audio/*,.mp3,.ogg,.wav,.m4a" data-a="'+k+'" hidden><span id="mt'+k+'"></span></div></div>'}
+    for(let i=0;i<15;i++){const k='s'+s+'_'+i;h+='<div class="cs"><span class="mut">'+(i+1)+'</span><input data-n="'+k+'" maxlength="30" placeholder="Pokémon name"><span style="display:flex;gap:6px;align-items:center"><span id="p'+k+'"></span><button data-i="'+k+'">Upload</button><input type="file" accept="image/*" data-f="'+k+'" hidden></span><div class="cand" id="c'+k+'"></div><div class="cand mus"><button data-m="'+k+'">🎵 Add theme music</button><input type="file" accept="audio/*,.mp3,.ogg,.wav,.m4a" data-a="'+k+'" hidden><span id="mt'+k+'"></span></div></div>'}
     h+='</div></section>'}
   h+='<section class="card wide"><div class="row"><button class="p" id="lk">Submit &amp; lock list</button></div></section>';
   $('app').innerHTML=h;$('ck').value=localStorage.getItem('creatorKey')||'';
-  for(let s=1;s<=3;s++)for(let i=0;i<10;i++)musLabel('s'+s+'_'+i);
+  for(let s=1;s<=3;s++)for(let i=0;i<15;i++)musLabel('s'+s+'_'+i);
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>addTheme(b.dataset.m));
   document.querySelectorAll('[data-a]').forEach(f=>f.onchange=()=>{const file=f.files[0];f.value='';if(!file)return;const k=f.dataset.a;
     if(!(file.type.startsWith('audio/')||/\.(mp3|ogg|wav|m4a)$/i.test(file.name)))return toast('Please choose an mp3, ogg, wav or m4a file.');
@@ -305,7 +315,7 @@ function buildCreator(){
   $('app').addEventListener('click',e=>{const b=e.target.closest('.cd');if(b&&!S?.locked)setSlot(b.dataset.c,{imageUrl:b.dataset.u,image:''})});
   $('fa').onclick=async()=>{for(const k of Object.keys(C.slots)){if(C.slots[k].name){await find(k);await new Promise(r=>setTimeout(r,150))}}};
   $('lk').onclick=async()=>{
-    if(cnt()<30)return toast('Fill in all 30 names first ('+cnt()+'/30).');
+    if(cnt()<45)return toast('Fill in all 45 names first ('+cnt()+'/45).');
     const miss=Object.values(C.slots).filter(s=>!pick(s)).length;
     if(miss&&!$('lk').dataset.ok){$('lk').dataset.ok=1;$('lk').textContent=miss+' have no picture. Click again to lock anyway';return}
     const key=$('ck').value.trim();localStorage.setItem('creatorKey',key);
@@ -327,7 +337,7 @@ function buildCreator(){
 }
 function creatorStatus(){
   if(!C.built)buildCreator();
-  const lk=S&&S.locked;$('cst').textContent=lk?'Locked ✓ · you can close this page':cnt()+'/30 Pokémon named';
+  const lk=S&&S.locked;$('cst').textContent=lk?'Locked ✓ · you can close this page':cnt()+'/45 Pokémon named';
   document.querySelectorAll('[data-n],[data-i],[data-m],select[data-l],#lk,#fa,.cd').forEach(x=>x.disabled=!!lk);
   restoreBanner();
 }
@@ -468,7 +478,7 @@ addEventListener('pointerdown',()=>{
   if(AU.on&&(AU.blocked||!AU.curId)){AU.blocked=false;AU.curId='';setBg(...AU.want)}
 },{once:false});
 fetch('/api/music').then(r=>r.json()).then(j=>{AU.files=j.files||[];AU.mons=j.pokemon||[];AU.stg=j.stage||[];if(AU.ctx&&AU.on){AU.curId='';setBg(...AU.want)}
-  if(view==='creator'&&C.built)for(let s=1;s<=3;s++)for(let i=0;i<10;i++)musLabel('s'+s+'_'+i)}).catch(()=>{});
+  if(view==='creator'&&C.built)for(let s=1;s<=3;s++)for(let i=0;i<15;i++)musLabel('s'+s+'_'+i)}).catch(()=>{});
 
 if(view==='creator')buildCreator();
 connect();

@@ -10,7 +10,7 @@ Node.js + WebSocket server. Nobody needs an account: players open the link and e
 ## Roles
 - Players: open `/`, enter a trainer name (10 players).
 - Host: open `/`, expand "Host login" at the bottom right, paste HOST_KEY.
-- Pool creator: open `/#creator`, paste CREATOR_KEY, type the 30 Pokémon names, click a picture for each (found automatically via PokéAPI; uploading your own is also possible), then Submit & lock.
+- Pool creator: open `/#creator`, paste CREATOR_KEY, type the 45 Pokémon names (15 per stage), click a picture for each (found automatically via PokéAPI; uploading your own is also possible), then Submit & lock.
 
 ## Deploy on Render (free)
 1. Push this folder to a GitHub repo.
@@ -66,3 +66,14 @@ Pushing new code to GitHub also restarts it and wipes the data.
 - Safe fix: on Render, upgrade the service to the Starter instance type, add a Disk (mount path `/data`) and set the environment variable
   `DATA_FILE=/data/data.json`. Everything then survives restarts and deploys.
 - Safety net: the creator page keeps a backup of the submitted list in the creator's browser and shows a "Restore my list" button if the server forgot it.
+
+## Rules (current)
+- 10 trainers, 1,000 coins each, 3 stages (Legendary, Mega, Uber), 15 Pokémon per stage, one Pokémon per trainer per stage.
+- Minimum price (and opening bid): Legendary 250, Mega 100, Uber 100. Raises are at least 1 coin.
+- Each trainer must keep enough coins to pay the minimum of the later stages (Stage 1 max bid = balance - 200, Stage 2 = balance - 100).
+- No bids on a Pokémon: it is removed from the pool, but only while there is a spare (15 - 10 = 5 removals per stage).
+  Once the Pokémon left equal the trainers still needing one, a Pokémon nobody bids on goes to the back of the line instead.
+- The last trainer left in a stage gets the last Pokémon automatically at the stage's minimum price (or whatever coins they have if less).
+- Trainer names are anonymous: everyone else sees "Trainer NN". Real names are only sent to the host, and the host console hides them unless the
+  "Show real names" box is ticked.
+- The host can add or subtract coins for any trainer in the host console (Edit coins).
