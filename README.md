@@ -58,3 +58,11 @@ The creator page reads the music library (`public/music/pokemon/`). When a Poké
 "Already in the library" with a preview and nothing needs to be uploaded. The creator can still pick a different
 library track from a dropdown or upload their own file. Order during an auction: uploaded theme > chosen library track >
 automatic library match > stage file > battle file > built-in chiptune.
+
+## Why the pool can "vanish" (free hosting) and how to prevent it
+Render's free plan stops the site after ~15 minutes without visitors and wipes everything the app saved (the pool, players, uploaded music).
+Pushing new code to GitHub also restarts it and wipes the data.
+- Free fix: create a free monitor at uptimerobot.com that opens `https://YOUR-SITE.onrender.com/healthz` every 5 minutes so the site never sleeps.
+- Safe fix: on Render, upgrade the service to the Starter instance type, add a Disk (mount path `/data`) and set the environment variable
+  `DATA_FILE=/data/data.json`. Everything then survives restarts and deploys.
+- Safety net: the creator page keeps a backup of the submitted list in the creator's browser and shows a "Restore my list" button if the server forgot it.

@@ -320,13 +320,34 @@ function buildCreator(){
     const items=Object.entries(C.slots).map(([k,s])=>({stage:s.stage,name:s.name,image:s.image||'',imageUrl:s.imageUrl||'',theme:(C.audio[k]&&C.audio[k].token)||'',lib:(!C.audio[k]&&C.libSel[k])||''}));
     const res=await fetch('/api/pool',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,items})});
     const j=await res.json().catch(()=>({}));
-    if(res.ok){localStorage.removeItem('draft');toast('List locked ✓')}else{toast(j.error||'Upload failed.');$('lk').disabled=false;$('lk').textContent='Submit & lock list'}
+    if(res.ok){localStorage.removeItem('draft');
+      try{localStorage.setItem('lockedPool',JSON.stringify({at:Date.now(),items:items.map(i=>({...i,theme:''})),audioNames:Object.keys(C.audio).map(k=>(C.slots[k]||{}).name).filter(Boolean)}))}catch(e){}   // backup in case the server restarts
+      toast('List locked ✓')}else{toast(j.error||'Upload failed.');$('lk').disabled=false;$('lk').textContent='Submit & lock list'}
   };
 }
 function creatorStatus(){
   if(!C.built)buildCreator();
   const lk=S&&S.locked;$('cst').textContent=lk?'Locked ✓ · you can close this page':cnt()+'/30 Pokémon named';
   document.querySelectorAll('[data-n],[data-i],[data-m],select[data-l],#lk,#fa,.cd').forEach(x=>x.disabled=!!lk);
+  restoreBanner();
+}
+function restoreBanner(){   // the free server forgets everything when it restarts; offer to resubmit from this browser's backup
+  let raw=null;try{raw=JSON.parse(localStorage.getItem('lockedPool')||'null')}catch(e){}
+  let b=$('rb');
+  if(!S||S.locked||!raw){if(b)b.remove();return}
+  if(b&&b.dataset.v==String(raw.at))return;
+  if(!b){$('app').insertAdjacentHTML('afterbegin','<section class="card wide" id="rb"></section>');b=$('rb')}
+  b.dataset.v=raw.at;const au=raw.audioNames||[];
+  b.innerHTML='<h2>⚠️ The server lost the locked list</h2><p>This happens when the free server restarts. Your submitted list (names, pictures and library choices) is saved in this browser.'+
+    (au.length?' Music you uploaded yourself ('+au.map(esc).join(', ')+') can’t be restored this way. Library themes are unaffected.':'')+'</p><div class="row" style="justify-content:flex-start"><button class="p" id="rbb">Restore my list</button><button id="rbx">Forget this backup</button></div>';
+  $('rbb').onclick=async()=>{
+    const key=($('ck')&&$('ck').value.trim())||localStorage.getItem('creatorKey')||'';
+    if(!key)return toast('Enter the creator key first.');
+    $('rbb').disabled=true;$('rbb').textContent='Restoring…';
+    try{const r=await fetch('/api/pool',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,items:raw.items})}),j=await r.json().catch(()=>({}));
+      if(r.ok)toast('List restored ✓');else{toast(j.error||'Restore failed.');$('rbb').disabled=false;$('rbb').textContent='Restore my list'}}
+    catch(e){toast('Restore failed. Check your connection.');$('rbb').disabled=false;$('rbb').textContent='Restore my list'}};
+  $('rbx').onclick=()=>{localStorage.removeItem('lockedPool');b.remove()};
 }
 
 
